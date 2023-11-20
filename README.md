@@ -1,2 +1,2 @@
 # grammar
-ANTLR Grammar and related content for GQL.
+ANTLR Grammar, EBNF, and railroad diagram tools for GQL.
