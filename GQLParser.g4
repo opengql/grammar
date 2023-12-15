@@ -1,8 +1,6 @@
 grammar GQLParser;
 
-options {
-	caseInsensitive = true;
-}
+options { tokenVocab = GQLLexer; }
 
 // 6 <GQL-program>
 
@@ -87,7 +85,7 @@ sessionResetArguments
    | SCHEMA
    | PROPERTY? GRAPH
    | TIME ZONE
-   | PARAMETER? parameterName
+   | PARAMETER? sessionParameterSpecification
    ;
 
 // 7.3 <session close command>
@@ -99,7 +97,7 @@ sessionCloseCommand
 // 7.4 <session parameter specification>
 
 sessionParameterSpecification
-    : generalParameterReference
+    : GENERAL_PARAMETER_REFERENCE
     ;
 
 // 8.1 <start transaction command>
@@ -218,7 +216,7 @@ graphInitializer
 // 10.2 <binding table variable definition>
 
 bindingTableVariableDefinition
-   : BINDING? TABLE bindingTableVariable optTypedBindingTableInitializer
+   : BINDING? TABLE bindingVariable optTypedBindingTableInitializer
    ;
 
 optTypedBindingTableInitializer
@@ -232,7 +230,7 @@ bindingTableInitializer
 // 10.3 <value variable definition>
 
 valueVariableDefinition
-   : VALUE valueVariable optTypedValueInitializer
+   : VALUE bindingVariable optTypedValueInitializer
    ;
 
 optTypedValueInitializer
@@ -816,7 +814,7 @@ differentEdgesMatchMode
 
 elementBindingsOrElements: ELEMENT BINDINGS? | ELEMENTS;
 
-elementBindingsOrEdges: edgeSynonym BINDINGS? | edgesSynonym;
+elementBindingsOrEdges: EDGE_SYNONYM BINDINGS? | EDGES_SYNONYM;
 
 pathPatternList
     : pathPattern
@@ -1465,7 +1463,7 @@ catalogObjectParentReference
 // 17.7 <reference parameter specification>
 
 referenceParameterSpecification
-    : substitutedParameterReference
+    : SUBSTITUTED_PARAMETER_REFERENCE
     ;
 
 // 18.1 <nested graph type specification>
@@ -1495,11 +1493,11 @@ nodeTypeSpecification
    ;
 
 nodeTypePattern
-   : (nodeSynonym TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
+   : (NODE_SYNONYM TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
    ;
 
 nodeTypePhrase
-    : nodeSynonym TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
+    : NODE_SYNONYM TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
     ;
 
 nodeTypePhraseFiller
@@ -1523,7 +1521,7 @@ nodeTypeImpliedContent
     ;
 
 nodeTypeKeyLabelSet
-    : labelSetPhrase? implies
+    : labelSetPhrase? IMPLIES_SYNONYM
     ;
 
 nodeTypeLabelSet
@@ -1542,11 +1540,11 @@ edgeTypeSpecification
    ;
 
 edgeTypePattern
-    : (edgeKind? edgeSynonym TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)+
+    : (edgeKind? EDGE_SYNONYM TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)+
     ;
 
 edgeTypePhrase
-   : edgeKind edgeSynonym TYPE? edgeTypePhraseFiller endpointPairPhrase
+   : edgeKind EDGE_SYNONYM TYPE? edgeTypePhraseFiller endpointPairPhrase
    ;
 
 edgeTypePhraseFiller
@@ -1566,7 +1564,7 @@ edgeTypeImpliedContent
     ;
 
 edgeTypeKeyLabelSet
-    : labelSetPhrase? implies
+    : labelSetPhrase? IMPLIES_SYNONYM
     ;
 
 edgeTypeLabelSet
@@ -1827,11 +1825,11 @@ decimalExactNumericType
    ;
 
 precision
-   : UNSIGNED_DECIMAL_INTEGER
+   : unsignedDecimalInteger
    ;
 
 scale
-   : UNSIGNED_DECIMAL_INTEGER
+   : unsignedDecimalInteger
    ;
 
 approximateNumericType
@@ -1883,12 +1881,12 @@ localtimeType
    ;
 
 temporalDurationType
-   : 'DURATION' LEFT_PAREN temporalDurationQuantifier RIGHT_PAREN notNull?
+   : DURATION LEFT_PAREN temporalDurationQuantifier RIGHT_PAREN notNull?
    ;
 
 temporalDurationQuantifier
-    : 'YEAR' 'TO' 'MONTH'
-    | 'DAY' 'TO' 'SECOND'
+    : YEAR TO MONTH
+    | DAY TO SECOND
     ;
 
 durationType
@@ -1941,7 +1939,7 @@ closedNodeReferenceValueType
    ;
 
 openNodeReferenceValueType
-   : ANY? nodeSynonym notNull?
+   : ANY? NODE_SYNONYM notNull?
    ;
 
 edgeReferenceValueType
@@ -1954,7 +1952,7 @@ closedEdgeReferenceValueType
    ;
 
 openEdgeReferenceValueType
-   : ANY? edgeSynonym notNull?
+   : ANY? EDGE_SYNONYM notNull?
    ;
 
 // constructedValueType folded into valueType to eliminate mutual left recursion.
@@ -2140,7 +2138,7 @@ valueExpression
     | unary_op = (PLUS_SIGN | MINUS_SIGN) valueExpression
     | valueExpression mul_op = (ASTERISK | SOLIDUS) valueExpression
     | valueExpression add_op = (PLUS_SIGN | MINUS_SIGN) valueExpression
-    | valueExpression IS NOT? booleanLiteral
+    | valueExpression IS NOT? BOOLEAN_LITERAL
     | NOT valueExpression
     | valueExpression AND valueExpression
     | valueExpression op = (OR | XOR) valueExpression
@@ -2234,7 +2232,7 @@ generalValueSpecification
 // 20.4 <dynamic parameter specification>
 
 dynamicParameterSpecification
-    : generalParameterReference
+    : GENERAL_PARAMETER_REFERENCE
     ;
 
 // 20.5 <let value expression>
@@ -2324,7 +2322,7 @@ castSpecification
 
 castOperand
    : valueExpression
-   | nullLiteral
+   | NULL
    ;
 
 castTarget
@@ -2759,6 +2757,10 @@ datetimeFunctionParameters
 
 durationValueExpression: valueExpression;
 
+datetimeSubtractionParameters
+    : datetimeValueExpression COMMA datetimeValueExpression
+    ;
+
 // 20.29 <duration value function>
 
 durationValueFunction
@@ -2807,7 +2809,7 @@ graphName
     ;
 
 delimitedGraphName
-    : delimitedIdentifier
+    : DELIMITED_IDENTIFIER
     ;
 
 graphTypeName
@@ -2815,12 +2817,12 @@ graphTypeName
     ;
 
 nodeTypeName
-   : elementTypeName
-   ;
+    : identifier
+    ;
 
 edgeTypeName
-   : elementTypeName
-   ;
+    : identifier
+    ;
 
 bindingTableName
     : REGULAR_IDENTIFIER
@@ -2828,7 +2830,7 @@ bindingTableName
     ;
 
 delimitedBindingTableName
-    : delimitedIdentifier
+    : DELIMITED_IDENTIFIER
     ;
 
 procedureName
@@ -2847,16 +2849,12 @@ fieldName
     : identifier
     ;
 
-parameterName
-    : separatedIdentifier
-    ;
-
 graphPatternVariable
     : elementVariable
-    | pathOrSubpathVariable
+    | pathOrsubpathVariable
     ;
 
-pathOrSubpathVariable
+pathOrsubpathVariable
     : pathVariable
     | subpathVariable
     ;
@@ -2890,8 +2888,8 @@ unsignedLiteral
     ;
 
 generalLiteral
-    : booleanLiteral
-    | characterStringLiteral
+    : BOOLEAN_LITERAL
+    | CHARACTER_STRING_LITERAL
     | BYTE_STRING_LITERAL
     | temporalLiteral
     | durationLiteral
@@ -2900,154 +2898,24 @@ generalLiteral
     | recordLiteral
     ;
 
-booleanLiteral
-    : TRUE
-    | FALSE
-    | UNKNOWN
-    ;
-
-characterStringLiteral
-    : singleQuotedCharacterSequence
-    | doubleQuotedCharacterSequence
-    ;
-
-singleQuotedCharacterSequence
-    : NO_ESCAPE? UNBROKEN_SINGLE_QUOTED_CHARACTER_SEQUENCE
-    ;
-
-doubleQuotedCharacterSequence
-    : NO_ESCAPE? UNBROKEN_DOUBLE_QUOTED_CHARACTER_SEQUENCE
-    ;
-
-accentQuotedCharacterSequence
-    : NO_ESCAPE? UNBROKEN_ACCET_QUOTED_CHARACTER_SEQUENCE
-    ;
-
-NO_ESCAPE
-    : COMMERCIAL_AT
-    ;
-
-UNBROKEN_SINGLE_QUOTED_CHARACTER_SEQUENCE
-    : SINGLE_QUOTE SINGLE_QUOTED_CHARACTER_REPRESENTATION? SINGLE_QUOTE
-    ;
-
-UNBROKEN_DOUBLE_QUOTED_CHARACTER_SEQUENCE
-    : DOUBLE_QUOTE DOUBLE_QUOTED_CHARACTER_REPRESENTATION? DOUBLE_QUOTE
-    ;
-
-UNBROKEN_ACCET_QUOTED_CHARACTER_SEQUENCE
-    : GRAVE_ACCENT ACCENT_QUOTED_CHARACTER_REPRESENTATION? GRAVE_ACCENT
-    ;
-
-fragment SINGLE_QUOTED_CHARACTER_REPRESENTATION:
-	(ESCAPED_CHARS | ~['\\\r\n])+
-	;
-
-fragment DOUBLE_QUOTED_CHARACTER_REPRESENTATION:
-	(ESCAPED_CHARS | ~["\\\r\n])+
-	;
-
-fragment ACCENT_QUOTED_CHARACTER_REPRESENTATION:
-	(ESCAPED_CHARS | ~[`\\\r\n])+
-	;
-
-ESCAPED_CHARS
-    : ESCAPED_REVERSE_SOLIDUS
-	| ESCAPED_QUOTE
-	| ESCAPED_DOUBLE_QUOTE
-	| ESCAPED_GRAVE_ACCENT
-	| ESCAPED_TAB
-	| ESCAPED_BACKSPACE
-	| ESCAPED_NEW_LINE
-	| ESCAPED_CARRIAGE_RETURN
-	| ESCAPED_FORM_FEED
-	| ESCAPED_UNICODE4_DIGIT_VALUE
-	| ESCAPED_UNICODE6_DIGIT_VALUE
-	;
-
-BYTE_STRING_LITERAL
-    : 'X' QUOTE ' '* (HEX_DIGIT ' '* HEX_DIGIT ' '* )* QUOTE
-    ;
-
-signedNumericLiteral
-    : SIGN? unsignedNumericLiteral
-    ;
-
-SIGN
-    : MINUS_SIGN
-    | PLUS_SIGN
-    ;
-
-unsignedNumericLiteral
-    : exactNumericLiteral
-    | approximateNumericLiteral
-    ;
-
-exactNumericLiteral
-    : unsignedDecimalInScientificNotation exactNumberSuffix
-    | unsignedDecimalInCommonNotation exactNumberSuffix?
-    | UNSIGNED_DECIMAL_INTEGER exactNumberSuffix
-    | unsignedInteger
-    ;
-
-exactNumberSuffix
-    : 'M'
-    ;
-
-unsignedDecimalInScientificNotation
-    : mantissa 'E' exponent
-    ;
-
-mantissa
-    : unsignedDecimalInCommonNotation
-    | UNSIGNED_DECIMAL_INTEGER
-    ;
-
-exponent
-    : signedDecimalInteger
-    ;
-
-unsignedDecimalInCommonNotation
-    : UNSIGNED_DECIMAL_INTEGER (PERIOD UNSIGNED_DECIMAL_INTEGER)
-    | PERIOD UNSIGNED_DECIMAL_INTEGER
-    ;
-
+// Validate that the NUMERIC_LITERAL is an unsignedInteger.
 unsignedInteger
-    : UNSIGNED_DECIMAL_INTEGER
-    | UNSIGNED_HEXADECIMAL_INTEGER
-    | UNSIGNED_OCTAL_INTEGER
-    | UNSIGNED_BINARY_INTEGER
+    : NUMERIC_LITERAL
     ;
 
-signedDecimalInteger
-    : SIGN? UNSIGNED_DECIMAL_INTEGER
+// Validate that the NUMERIC_LITERAL is an unsignedDecimalInteger.
+unsignedDecimalInteger
+    : NUMERIC_LITERAL
     ;
 
-UNSIGNED_DECIMAL_INTEGER
-    : DIGIT (UNDERSCORE DIGIT)*
+// Validate that the NUMERIC_LITERAL is an unsignedNumericLiteral.
+unsignedNumericLiteral
+    : NUMERIC_LITERAL
     ;
 
-UNSIGNED_HEXADECIMAL_INTEGER
-    : '0x' ('_'? HEX_DIGIT)+
-    ;
-
-UNSIGNED_OCTAL_INTEGER
-    : '0o' ('_'? OCTAL_DIGIT)+
-    ;
-
-UNSIGNED_BINARY_INTEGER
-    : '0b' ('_'? BINARY_DIGIT)+
-    ;
-
-approximateNumericLiteral
-    : unsignedDecimalInScientificNotation approximateNumberSuffix?
-    | unsignedDecimalInCommonNotation approximateNumberSuffix
-    | UNSIGNED_DECIMAL_INTEGER approximateNumberSuffix
-    ;
-
-approximateNumberSuffix
-    : 'F'
-    | 'D'
+// Validate that the NUMERIC_LITERAL is an signedNumericLiteral.
+signedNumericLiteral
+    : NUMERIC_LITERAL
     ;
 
 temporalLiteral
@@ -3070,19 +2938,19 @@ datetimeLiteral
     ;
 
 dateString
-    : characterStringLiteral
+    : CHARACTER_STRING_LITERAL
     ;
 
 timeString
-    : characterStringLiteral
+    : CHARACTER_STRING_LITERAL
     ;
 
 datetimeString
-    : characterStringLiteral
+    : CHARACTER_STRING_LITERAL
     ;
 
 timeZoneString
-    : characterStringLiteral
+    : CHARACTER_STRING_LITERAL
     ;
 
 durationLiteral
@@ -3091,52 +2959,57 @@ durationLiteral
     ;
 
 durationString
-    : characterStringLiteral
-    ;
-
-iso8601YearsAndMonths
-    : 'P' iso8601Years? iso8601Months?
-    ;
-
-iso8601Years
-    : iso8601Sint 'Y'
-    ;
-
-iso8601Months
-    : iso8601Sint 'M'
-    ;
-
-iso8601Days
-    : iso8601Sint 'D'
-    ;
-
-iso8601DaysAndTime
-    : 'P' iso8601Days? 'T' iso8601Hours? iso8601Minutes? iso8601Seconds?
-    ;
-
-iso8601Hours
-    : iso8601Sint 'H'
-    ;
-
-iso8601Minutes
-    : iso8601Sint 'M'
-    ;
-
-iso8601Seconds
-    : iso8601Sint (PERIOD iso8601Uint)? 'S'
-    ;
-
-iso8601Sint
-    : MINUS_SIGN? UNSIGNED_DECIMAL_INTEGER
-    ;
-
-iso8601Uint
-    : UNSIGNED_DECIMAL_INTEGER
+    : CHARACTER_STRING_LITERAL
     ;
 
 nullLiteral
     : NULL
     ;
+
+// These should not be handled by the top level parser. A subparser or subscanner should be created as part of an
+// implementation. And whenever a durationString is seen, that subscanner should be used to detect if the string
+// conforms to an iso8601 duration.
+
+//
+//iso8601YearsAndMonths
+//    : 'P' iso8601Years? iso8601Months?
+//    ;
+//
+//iso8601Years
+//    : iso8601Sint 'Y'
+//    ;
+//
+//iso8601Months
+//    : iso8601Sint 'M'
+//    ;
+//
+//iso8601Days
+//    : iso8601Sint 'D'
+//    ;
+//
+//iso8601DaysAndTime
+//    : 'P' iso8601Days? 'T' iso8601Hours? iso8601Minutes? iso8601Seconds?
+//    ;
+//
+//iso8601Hours
+//    : iso8601Sint 'H'
+//    ;
+//
+//iso8601Minutes
+//    : iso8601Sint 'M'
+//    ;
+//
+//iso8601Seconds
+//    : iso8601Sint (PERIOD iso8601Uint)? 'S'
+//    ;
+//
+//iso8601Sint
+//    : MINUS_SIGN? UNSIGNED_DECIMAL_INTEGER
+//    ;
+//
+//iso8601Uint
+//    : UNSIGNED_DECIMAL_INTEGER
+//    ;
 
 listLiteral
     : listValueConstructorByEnumeration
@@ -3151,56 +3024,9 @@ recordLiteral
 // From here down the ordering from the specification is not preserved, because of the need to prioritize
 // keywords above identifiers.
 
-token
-    : nonDelimiterToken
-    | delimiterToken
-    ;
-
-nonDelimiterToken
-    : REGULAR_IDENTIFIER
-    | substitutedParameterReference
-    | generalParameterReference
-    | keyword
-    | unsignedNumericLiteral
-    | BYTE_STRING_LITERAL
-    | MULTISET_ALTERNATION_OPERATOR
-    ;
-
 identifier
     : REGULAR_IDENTIFIER
-    | delimitedIdentifier
-    ;
-
-separatedIdentifier
-    : extendedIdentifier
-    | delimitedIdentifier
-    ;
-
-nonDelimitedIdentifier
-    : REGULAR_IDENTIFIER
-    | extendedIdentifier
-    ;
-
-extendedIdentifier
-    : EXTENDED_IDENTIFER
-    ;
-
-delimitedIdentifier
-    : doubleQuotedCharacterSequence
-    | accentQuotedCharacterSequence
-    ;
-
-substitutedParameterReference
-    : DOUBLE_DOLLAR_SIGN parameterName
-    ;
-
-generalParameterReference
-    : DOLLAR_SIGN parameterName
-    ;
-
-keyword
-    : reservedWord
-    | nonReservedWord
+    | DELIMITED_IDENTIFIER
     ;
 
 reservedWord
@@ -3230,237 +3056,14 @@ reservedWord
     | SAME | SCHEMA | SECOND | SELECT | SESSION | SESSION_USER | SET | SIGNED | SIN | SINH
     | SIZE | SKIP_RESERVED_WORD | SMALL | SMALLINT | SQRT | START | STDDEV_POP | STDDEV_SAMP | STRING
     | SUM
-    | TAN | TANH | THEN | TIME | TIMESTAMP | TRAILING | TRIM | TRUE | TYPED
-    | UBIGINT | UINT | UINT8 | UINT16 | UINT32 | UINT64 | UINT128 | UINT256 | UNION | UNKNOWN | UNSIGNED | UPPER | USE | USMALLINT
+    | TAN | TANH | THEN | TIME | TIMESTAMP | TRAILING | TRIM | /*TRUE*/ | TYPED
+    | UBIGINT | UINT | UINT8 | UINT16 | UINT32 | UINT64 | UINT128 | UINT256 | UNION | /*UNKNOWN*/ | UNSIGNED | UPPER | USE | USMALLINT
     | VALUE | VARBINARY | VARCHAR | VARIABLE
     | WHEN | WHERE | WITH
     | XOR
     | YEAR | YIELD
     | ZONED | ZONED_DATETIME | ZONED_TIME
     ;
-
-ABS: 'ABS';
-ACOS: 'ACOS';
-ALL: 'ALL';
-ALL_DIFFERENT: 'ALL_DIFFERENT';
-AND: 'AND';
-ANY: 'ANY';
-ARRAY: 'ARRAY';
-AS: 'AS';
-ASC: 'ASC';
-ASCENDING: 'ASCENDING';
-ASIN: 'ASIN';
-AT: 'AT';
-ATAN: 'ATAN';
-AVG: 'AVG';
-BIG: 'BIG';
-BIGINT: 'BIGINT';
-BINARY: 'BINARY';
-BOOL: 'BOOL';
-BOOLEAN: 'BOOLEAN';
-BOTH: 'BOTH';
-BTRIM: 'BTRIM';
-BY: 'BY';
-BYTE_LENGTH: 'BYTE_LENGTH';
-BYTES: 'BYTES';
-CALL: 'CALL';
-CARDINALITY: 'CARDINALITY';
-CASE: 'CASE';
-CAST: 'CAST';
-CEIL: 'CEIL';
-CEILING: 'CEILING';
-CHAR: 'CHAR';
-CHAR_LENGTH: 'CHAR_LENGTH';
-CHARACTER_LENGTH: 'CHARACTER_LENGTH';
-CHARACTERISTICS: 'CHARACTERISTICS';
-CLOSE: 'CLOSE';
-COALESCE: 'COALESCE';
-COLLECT_LIST: 'COLLECT_LIST';
-COMMIT: 'COMMIT';
-COPY: 'COPY';
-COS: 'COS';
-COSH: 'COSH';
-COT: 'COT';
-COUNT: 'COUNT';
-CREATE: 'CREATE';
-CURRENT_DATE: 'CURRENT_DATE';
-CURRENT_GRAPH: 'CURRENT_GRAPH';
-CURRENT_PROPERTY_GRAPH: 'CURRENT_PROPERTY_GRAPH';
-CURRENT_SCHEMA: 'CURRENT_SCHEMA';
-CURRENT_TIME: 'CURRENT_TIME';
-CURRENT_TIMESTAMP: 'CURRENT_TIMESTAMP';
-DATE: 'DATE';
-DATETIME: 'DATETIME';
-DAY: 'DAY';
-DEC: 'DEC';
-DECIMAL: 'DECIMAL';
-DEGREES: 'DEGREES';
-DELETE: 'DELETE';
-DESC: 'DESC';
-DESCENDING: 'DESCENDING';
-DETACH: 'DETACH';
-DISTINCT: 'DISTINCT';
-DOUBLE: 'DOUBLE';
-DROP: 'DROP';
-DURATION: 'DURATION';
-DURATION_BETWEEN: 'DURATION_BETWEEN';
-ELEMENT_ID: 'ELEMENT_ID';
-ELSE: 'ELSE';
-END: 'END';
-EXCEPT: 'EXCEPT';
-EXISTS: 'EXISTS';
-EXP: 'EXP';
-FALSE: 'FALSE';
-FILTER: 'FILTER';
-FINISH: 'FINISH';
-FLOAT: 'FLOAT';
-FLOAT16: 'FLOAT16';
-FLOAT32: 'FLOAT32';
-FLOAT64: 'FLOAT64';
-FLOAT128: 'FLOAT128';
-FLOAT256: 'FLOAT256';
-FLOOR: 'FLOOR';
-FOR: 'FOR';
-FROM: 'FROM';
-GROUP: 'GROUP';
-HAVING: 'HAVING';
-HOME_GRAPH: 'HOME_GRAPH';
-HOME_PROPERTY_GRAPH: 'HOME_PROPERTY_GRAPH';
-HOME_SCHEMA: 'HOME_SCHEMA';
-HOUR: 'HOUR';
-IF: 'IF';
-IMPLIES: 'IMPLIES';
-IN: 'IN';
-INSERT: 'INSERT';
-INT: 'INT';
-INTEGER: 'INTEGER';
-INT8: 'INT8';
-INTEGER8: 'INTEGER8';
-INT16: 'INT16';
-INTEGER16: 'INTEGER16';
-INT32: 'INT32';
-INTEGER32: 'INTEGER32';
-INT64: 'INT64';
-INTEGER64: 'INTEGER64';
-INT128: 'INT128';
-INTEGER128: 'INTEGER128';
-INT256: 'INT256';
-INTEGER256: 'INTEGER256';
-INTERSECT: 'INTERSECT';
-INTERVAL: 'INTERVAL';
-IS: 'IS';
-LEADING: 'LEADING';
-LEFT: 'LEFT';
-LET: 'LET';
-LIKE: 'LIKE';
-LIMIT: 'LIMIT';
-LIST: 'LIST';
-LN: 'LN';
-LOCAL: 'LOCAL';
-LOCAL_DATETIME: 'LOCAL_DATETIME';
-LOCAL_TIME: 'LOCAL_TIME';
-LOCAL_TIMESTAMP: 'LOCAL_TIMESTAMP';
-LOG: 'LOG';
-LOG10: 'LOG10';
-LOWER: 'LOWER';
-LTRIM: 'LTRIM';
-MATCH: 'MATCH';
-MAX: 'MAX';
-MIN: 'MIN';
-MINUTE: 'MINUTE';
-MOD: 'MOD';
-MONTH: 'MONTH';
-NEXT: 'NEXT';
-NODETACH: 'NODETACH';
-NORMALIZE: 'NORMALIZE';
-NOT: 'NOT';
-NOTHING: 'NOTHING';
-NULL: 'NULL';
-NULLS: 'NULLS';
-NULLIF: 'NULLIF';
-OCTET_LENGTH: 'OCTET_LENGTH';
-OF: 'OF';
-OFFSET: 'OFFSET';
-OPTIONAL: 'OPTIONAL';
-OR: 'OR';
-ORDER: 'ORDER';
-OTHERWISE: 'OTHERWISE';
-PARAMETER: 'PARAMETER';
-PARAMETERS: 'PARAMETERS';
-PATH: 'PATH';
-PATH_LENGTH: 'PATH_LENGTH';
-PATHS: 'PATHS';
-PERCENTILE_CONT: 'PERCENTILE_CONT';
-PERCENTILE_DISC: 'PERCENTILE_DISC';
-POWER: 'POWER';
-PRECISION: 'PRECISION';
-PROPERTY_EXISTS: 'PROPERTY_EXISTS';
-RADIANS: 'RADIANS';
-REAL: 'REAL';
-RECORD: 'RECORD';
-REMOVE: 'REMOVE';
-REPLACE: 'REPLACE';
-RESET: 'RESET';
-RETURN: 'RETURN';
-RIGHT: 'RIGHT';
-ROLLBACK: 'ROLLBACK';
-RTRIM: 'RTRIM';
-SAME: 'SAME';
-SCHEMA: 'SCHEMA';
-SECOND: 'SECOND';
-SELECT: 'SELECT';
-SESSION: 'SESSION';
-SESSION_USER: 'SESSION_USER';
-SET: 'SET';
-SIGNED: 'SIGNED';
-SIN: 'SIN';
-SINH: 'SINH';
-SIZE: 'SIZE';
-SKIP_RESERVED_WORD: 'SKIP';
-SMALL: 'SMALL';
-SMALLINT: 'SMALLINT';
-SQRT: 'SQRT';
-START: 'START';
-STDDEV_POP: 'STDDEV_POP';
-STDDEV_SAMP: 'STDDEV_SAMP';
-STRING: 'STRING';
-SUM: 'SUM';
-TAN: 'TAN';
-TANH: 'TANH';
-THEN: 'THEN';
-TIME: 'TIME';
-TIMESTAMP: 'TIMESTAMP';
-TRAILING: 'TRAILING';
-TRIM: 'TRIM';
-TRUE: 'TRUE';
-TYPED: 'TYPED';
-UBIGINT: 'UBIGINT';
-UINT: 'UINT';
-UINT8: 'UINT8';
-UINT16: 'UINT16';
-UINT32: 'UINT32';
-UINT64: 'UINT64';
-UINT128: 'UINT128';
-UINT256: 'UINT256';
-UNION: 'UNION';
-UNKNOWN: 'UNKNOWN';
-UNSIGNED: 'UNSIGNED';
-UPPER: 'UPPER';
-USE: 'USE';
-USMALLINT: 'USMALLINT';
-VALUE: 'VALUE';
-VARBINARY: 'VARBINARY';
-VARCHAR: 'VARCHAR';
-VARIABLE: 'VARIABLE';
-WHEN: 'WHEN';
-WHERE: 'WHERE';
-WITH: 'WITH';
-XOR: 'XOR';
-YEAR: 'YEAR';
-YIELD: 'YIELD';
-ZONED: 'ZONED';
-ZONED_DATETIME: 'ZONED_DATETIME';
-ZONED_TIME: 'ZONED_TIME';
 
 preReservedWord
     : ABSTRACT | AGGREGATE | AGGREGATES | ALTER
@@ -3481,46 +3084,6 @@ preReservedWord
     | VALUES
     | WHITESPACE
     ;
-
-ABSTRACT: 'ABSTRACT';
-AGGREGATE: 'AGGREGATE';
-AGGREGATES: 'AGGREGATES';
-ALTER: 'ALTER';
-CATALOG: 'CATALOG';
-CLEAR: 'CLEAR';
-CLONE: 'CLONE';
-CONSTRAINT: 'CONSTRAINT';
-CURRENT_ROLE: 'CURRENT_ROLE';
-CURRENT_USER: 'CURRENT_USER';
-DATA: 'DATA';
-DIRECTORY: 'DIRECTORY';
-DRYRUN: 'DRYRUN';
-EXACT: 'EXACT';
-EXISTING: 'EXISTING';
-FUNCTION: 'FUNCTION';
-GQLSTATUS: 'GQLSTATUS';
-GRANT: 'GRANT';
-INSTANT: 'INSTANT';
-INFINITY: 'INFINITY';
-NUMBER: 'NUMBER';
-NUMERIC: 'NUMERIC';
-ON: 'ON';
-OPEN: 'OPEN';
-PARTITION: 'PARTITION';
-PROCEDURE: 'PROCEDURE';
-PRODUCT: 'PRODUCT';
-PROJECT: 'PROJECT';
-QUERY: 'QUERY';
-RECORDS: 'RECORDS';
-REFERENCE: 'REFERENCE';
-RENAME: 'RENAME';
-REVOKE: 'REVOKE';
-SUBSTRING: 'SUBSTRING';
-SYSTEM_USER: 'SYSTEM_USER';
-TEMPORAL: 'TEMPORAL';
-UNIQUE: 'UNIQUE';
-UNIT: 'UNIT';
-VALUES: 'VALUES';
 
 nonReservedWord
     : ACYCLIC
@@ -3544,177 +3107,10 @@ nonReservedWord
     | ZONE
     ;
 
-ACYCLIC: 'ACYCLIC';
-BINDING: 'BINDING';
-BINDINGS: 'BINDINGS';
-CONNECTING: 'CONNECTING';
-DESTINATION: 'DESTINATION';
-DIFFERENT: 'DIFFERENT';
-DIRECTED: 'DIRECTED';
-EDGE: 'EDGE';
-EDGES: 'EDGES';
-ELEMENT: 'ELEMENT';
-ELEMENTS: 'ELEMENTS';
-FIRST: 'FIRST';
-GRAPH: 'GRAPH';
-GROUPS: 'GROUPS';
-KEEP: 'KEEP';
-LABEL: 'LABEL';
-LABELED: 'LABELED';
-LABELS: 'LABELS';
-LAST: 'LAST';
-NFC: 'NFC';
-NFD: 'NFD';
-NFKC: 'NFKC';
-NFKD: 'NFKD';
-NO: 'NO';
-NODE: 'NODE';
-NORMALIZED: 'NORMALIZED';
-ONLY: 'ONLY';
-ORDINALITY: 'ORDINALITY';
-PROPERTY: 'PROPERTY';
-READ: 'READ';
-RELATIONSHIP: 'RELATIONSHIP';
-RELATIONSHIPS: 'RELATIONSHIPS';
-REPEATABLE: 'REPEATABLE';
-SHORTEST: 'SHORTEST';
-SIMPLE: 'SIMPLE';
-SOURCE: 'SOURCE';
-TABLE: 'TABLE';
-TEMP: 'TEMP';
-TO: 'TO';
-TRAIL: 'TRAIL';
-TRANSACTION: 'TRANSACTION';
-TYPE: 'TYPE';
-UNDIRECTED: 'UNDIRECTED';
-VERTEX: 'VERTEX';
-WALK: 'WALK';
-WITHOUT: 'WITHOUT';
-WRITE: 'WRITE';
-ZONE: 'ZONE';
-
-
-REGULAR_IDENTIFIER
-    : IDENTIFIER_START IDENTIFIER_EXTEND*
-    ;
-
-EXTENDED_IDENTIFER
-    : IDENTIFIER_EXTEND+
-    ;
-
-MULTISET_ALTERNATION_OPERATOR: '|+|';
-
-delimiterToken
-    : BRACKET_RIGHT_ARROW
-    | BRACKET_TILDE_RIGHT_ARROW
-    | characterStringLiteral
-    | CONCATENATION_OPERATOR
-    | dateString
-    | datetimeString
-    | delimitedIdentifier
-    | DOUBLE_COLON
-    | DOUBLE_PERIOD
-    | durationString
-    | greaterThanOperator
-    | GREATER_THAN_OR_EQUALS_OPERATOR
-    | LEFT_ARROW
-    | LEFT_ARROW_BRACKET
-    | LEFT_ARROW_TILDE
-    | LEFT_ARROW_TILDE_BRACKET
-    | LEFT_MINUS_RIGHT
-    | LEFT_MINUS_SLASH
-    | LEFT_TILDE_SLASH
-    | lessThanOperator
-    | LESS_THAN_OR_EQUALS_OPERATOR
-    | MINUS_LEFT_BRACKET
-    | MINUS_SLASH
-    | NOT_EQUALS_OPERATOR
-    | RIGHT_ARROW
-    | RIGHT_BRACKET_MINUS
-    | RIGHT_BRACKET_TILDE
-    | RIGHT_DOUBLE_ARROW
-    | SLASH_MINUS
-    | SLASH_MINUS_RIGHT
-    | SLASH_TILDE
-    | SLASH_TILDE_RIGHT
-    | TILDE_LEFT_BRACKET
-    | TILDE_RIGHT_ARROW
-    | TILDE_SLASH
-    | timeString
-    ;
-
-BRACKET_RIGHT_ARROW: ']->';
-BRACKET_TILDE_RIGHT_ARROW: ']~>';
-CONCATENATION_OPERATOR: '||';
-DOUBLE_COLON: '::';
-DOUBLE_DOLLAR_SIGN: '$$';
-DOUBLE_MINUS_SIGN: '--';
-DOUBLE_PERIOD: '..';
 greaterThanOperator: RIGHT_ANGLE_BRACKET;
-GREATER_THAN_OR_EQUALS_OPERATOR: '>=';
-LEFT_ARROW: '<-';
-LEFT_ARROW_TILDE: '<~';
-LEFT_ARROW_BRACKET: '<-[';
-LEFT_ARROW_TILDE_BRACKET: '<~[';
-LEFT_MINUS_RIGHT: '<->';
-LEFT_MINUS_SLASH: '<-/';
-LEFT_TILDE_SLASH: '<~/';
 lessThanOperator: LEFT_ANGLE_BRACKET;
-LESS_THAN_OR_EQUALS_OPERATOR: '<=';
-MINUS_LEFT_BRACKET: '-[';
-MINUS_SLASH: '-/';
-NOT_EQUALS_OPERATOR: '<>';
-RIGHT_ARROW: '->';
-RIGHT_BRACKET_MINUS: ']-';
-RIGHT_BRACKET_TILDE: ']~';
-RIGHT_DOUBLE_ARROW: '=>';
-SLASH_MINUS: '/-';
-SLASH_MINUS_RIGHT: '/->';
-SLASH_TILDE: '/~';
-SLASH_TILDE_RIGHT: '/~>';
-TILDE_LEFT_BRACKET: '~[';
-TILDE_RIGHT_ARROW: '~>';
-TILDE_SLASH: '~/';
-DOUBLE_SOLIDUS: '//';
-
-edgeSynonym
-    : EDGE
-    | RELATIONSHIP
-    ;
-
-edgesSynonym
-    : EDGES
-    | RELATIONSHIPS
-    ;
-
-nodeSynonym
-    : NODE
-    | VERTEX
-    ;
-
-implies
-    : RIGHT_DOUBLE_ARROW
-    | IMPLIES
-    ;
 
 // 21.4 <GQL terminal characters>
-
-
-fragment HEX_DIGIT
-    : [0-9a-f]
-    ;
-
-fragment DIGIT
-    : [0-9]
-    ;
-
-fragment OCTAL_DIGIT
-    : [0-7]
-    ;
-
-fragment BINARY_DIGIT
-    : [0-1]
-    ;
 
 gqlSpecialCharacter
     : AMPERSAND
@@ -3746,155 +3142,4 @@ gqlSpecialCharacter
     | VERTICAL_BAR
     | PERCENT
     | TILDE
-    ;
-
-AMPERSAND: '&';
-ASTERISK: '*';
-COLON: ':';
-COMMA: ',';
-COMMERCIAL_AT: '@';
-DOLLAR_SIGN: '$';
-DOUBLE_QUOTE: '"';
-EQUALS_OPERATOR: '=';
-EXCLAMATION_MARK: '!';
-RIGHT_ANGLE_BRACKET: '>';
-GRAVE_ACCENT: '`';
-LEFT_BRACE: '{';
-LEFT_BRACKET: '[';
-LEFT_PAREN: '(';
-LEFT_ANGLE_BRACKET: '<';
-MINUS_SIGN: '-';
-PERCENT: '%';
-PERIOD: '.';
-PLUS_SIGN: '+';
-QUESTION_MARK: '?';
-QUOTE: SINGLE_QUOTE;
-REVERSE_SOLIDUS: '\\';
-RIGHT_BRACE: '}';
-RIGHT_BRACKET: ']';
-RIGHT_PAREN: ')';
-SOLIDUS: '/';
-TILDE: '~';
-UNDERSCORE: '_';
-VERTICAL_BAR: '|';
-
-SINGLE_QUOTE: '\'';
-
-digit
-    : UNSIGNED_DECIMAL_INTEGER
-    ;
-
-datetimeSubtractionParameters
-    : datetimeValueExpression COMMA datetimeValueExpression
-    ;
-
-unbrokenCharacterStringLiteral
-    : UNBROKEN_SINGLE_QUOTED_CHARACTER_SEQUENCE
-    | UNBROKEN_DOUBLE_QUOTED_CHARACTER_SEQUENCE
-    ;
-
-bindingTableVariable
-    : bindingVariable
-    ;
-
-elementTypeName
-    : identifier
-    ;
-
-valueVariable
-    : bindingVariable
-    ;
-
-SP
-  : (WHITESPACE)+
-  -> channel(HIDDEN)
-  ;
-
-WHITESPACE
-    : SPACE
-    | TAB
-    | LF
-    | VT
-    | FF
-    | CR
-    | FS
-    | GS
-    | RS
-    | US
-    | '\u1680'
-    | '\u180e'
-    | '\u2000'
-    | '\u2001'
-    | '\u2002'
-    | '\u2003'
-    | '\u2004'
-    | '\u2005'
-    | '\u2006'
-    | '\u2008'
-    | '\u2009'
-    | '\u200a'
-    | '\u2028'
-    | '\u2029'
-    | '\u205f'
-    | '\u3000'
-    | '\u00a0'
-    | '\u2007'
-    | '\u202f'
-    ;
-
-COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
-
-fragment GS : [\u001D];
-
-fragment FS : [\u001C];
-
-fragment CR : [\r];
-
-fragment Sc : [\p{Sc}];
-
-fragment SPACE : [ ];
-
-fragment Pc : [\p{Pc}];
-
-fragment TAB : [\t];
-
-fragment LF : [\n];
-
-fragment VT : [\u000B];
-
-fragment US : [\u001F];
-
-fragment FF: [\f];
-
-fragment RS: [\u001E];
-
-ESCAPED_REVERSE_SOLIDUS: REVERSE_SOLIDUS REVERSE_SOLIDUS;
-ESCAPED_QUOTE: REVERSE_SOLIDUS QUOTE;
-ESCAPED_DOUBLE_QUOTE: REVERSE_SOLIDUS DOUBLE_QUOTE;
-ESCAPED_GRAVE_ACCENT: REVERSE_SOLIDUS GRAVE_ACCENT;
-ESCAPED_TAB: REVERSE_SOLIDUS 't';
-ESCAPED_BACKSPACE: REVERSE_SOLIDUS 'b';
-ESCAPED_NEW_LINE: REVERSE_SOLIDUS 'n';
-ESCAPED_CARRIAGE_RETURN: REVERSE_SOLIDUS 'r';
-ESCAPED_FORM_FEED: REVERSE_SOLIDUS 'f';
-ESCAPED_UNICODE4_DIGIT_VALUE:
-	REVERSE_SOLIDUS 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
-ESCAPED_UNICODE6_DIGIT_VALUE:
-	REVERSE_SOLIDUS 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
-
-fragment IDENTIFIER_START
-    : ID_Start
-    | Pc
-    ;
-
-fragment IDENTIFIER_EXTEND
-    : ID_Continue
-    ;
-
-fragment ID_Start
-    : [\p{ID_Start}]
-    ;
-
-fragment ID_Continue
-    : [\p{ID_Continue}]
     ;
