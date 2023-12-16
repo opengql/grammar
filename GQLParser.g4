@@ -2809,7 +2809,9 @@ graphName
     ;
 
 delimitedGraphName
-    : DELIMITED_IDENTIFIER
+    // DELIMITED_IDENTIFIER
+    : DOUBLE_QUOTED_CHARACTER_SEQUENCE
+    | ACCENT_QUOTED_CHARACTER_SEQUENCE
     ;
 
 graphTypeName
@@ -2830,7 +2832,9 @@ bindingTableName
     ;
 
 delimitedBindingTableName
-    : DELIMITED_IDENTIFIER
+    // DELIMITED_IDENTIFIER
+    : DOUBLE_QUOTED_CHARACTER_SEQUENCE
+    | ACCENT_QUOTED_CHARACTER_SEQUENCE
     ;
 
 procedureName
@@ -2889,13 +2893,18 @@ unsignedLiteral
 
 generalLiteral
     : BOOLEAN_LITERAL
-    | CHARACTER_STRING_LITERAL
+    | characterStringLiteral
     | BYTE_STRING_LITERAL
     | temporalLiteral
     | durationLiteral
     | nullLiteral
     | listLiteral
     | recordLiteral
+    ;
+
+characterStringLiteral
+    : SINGLE_QUOTED_CHARACTER_SEQUENCE
+    | DOUBLE_QUOTED_CHARACTER_SEQUENCE
     ;
 
 // Validate that the NUMERIC_LITERAL is an unsignedInteger.
@@ -2938,19 +2947,19 @@ datetimeLiteral
     ;
 
 dateString
-    : CHARACTER_STRING_LITERAL
+    : characterStringLiteral
     ;
 
 timeString
-    : CHARACTER_STRING_LITERAL
+    : characterStringLiteral
     ;
 
 datetimeString
-    : CHARACTER_STRING_LITERAL
+    : characterStringLiteral
     ;
 
 timeZoneString
-    : CHARACTER_STRING_LITERAL
+    : characterStringLiteral
     ;
 
 durationLiteral
@@ -2959,7 +2968,7 @@ durationLiteral
     ;
 
 durationString
-    : CHARACTER_STRING_LITERAL
+    : characterStringLiteral
     ;
 
 nullLiteral
@@ -3026,7 +3035,9 @@ recordLiteral
 
 identifier
     : REGULAR_IDENTIFIER
-    | DELIMITED_IDENTIFIER
+    // DELIMITED_IDENTIFIER
+    | DOUBLE_QUOTED_CHARACTER_SEQUENCE
+    | ACCENT_QUOTED_CHARACTER_SEQUENCE
     ;
 
 reservedWord
