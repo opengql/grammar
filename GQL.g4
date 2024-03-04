@@ -5,2068 +5,2068 @@ options { caseInsensitive = true; }
 // 6 <GQL-program>
 
 gqlProgram
-   : programActivity sessionCloseCommand? EOF
-   | sessionCloseCommand EOF
-   ;
+    : programActivity sessionCloseCommand? EOF
+    | sessionCloseCommand EOF
+    ;
 
 programActivity
-   : sessionActivity
-   | transactionActivity
-   ;
+    : sessionActivity
+    | transactionActivity
+    ;
 
 sessionActivity
-   : sessionResetCommand+
-   | sessionSetCommand+ sessionResetCommand*
-   ;
+    : sessionResetCommand+
+    | sessionSetCommand+ sessionResetCommand*
+    ;
 
 transactionActivity
-   : startTransactionCommand (procedureSpecification endTransactionCommand?)?
-   | procedureSpecification endTransactionCommand?
-   | endTransactionCommand
-   ;
+    : startTransactionCommand (procedureSpecification endTransactionCommand?)?
+    | procedureSpecification endTransactionCommand?
+    | endTransactionCommand
+    ;
 
 endTransactionCommand
-   : rollbackCommand
-   | commitCommand
-   ;
+    : rollbackCommand
+    | commitCommand
+    ;
 
 // 7.1 <session set command>
 
 sessionSetCommand
-   : SESSION SET (sessionSetSchemaClause | sessionSetGraphClause | sessionSetTimeZoneClause | sessionSetParameterClause)
-   ;
+    : SESSION SET (sessionSetSchemaClause | sessionSetGraphClause | sessionSetTimeZoneClause | sessionSetParameterClause)
+    ;
 
 sessionSetSchemaClause
-   : SCHEMA schemaReference
-   ;
+    : SCHEMA schemaReference
+    ;
 
 sessionSetGraphClause
-   : PROPERTY? GRAPH graphExpression
-   ;
+    : PROPERTY? GRAPH graphExpression
+    ;
 
 sessionSetTimeZoneClause
-   : TIME ZONE setTimeZoneValue
-   ;
+    : TIME ZONE setTimeZoneValue
+    ;
 
 setTimeZoneValue
-   : timeZoneString
-   ;
+    : timeZoneString
+    ;
 
 sessionSetParameterClause
-   : sessionSetGraphParameterClause
-   | sessionSetBindingTableParameterClause
-   | sessionSetValueParameterClause
-   ;
+    : sessionSetGraphParameterClause
+    | sessionSetBindingTableParameterClause
+    | sessionSetValueParameterClause
+    ;
 
 sessionSetGraphParameterClause
-   : PROPERTY? GRAPH sessionSetParameterName optTypedGraphInitializer
-   ;
+    : PROPERTY? GRAPH sessionSetParameterName optTypedGraphInitializer
+    ;
 
 sessionSetBindingTableParameterClause
-   : BINDING? TABLE sessionSetParameterName optTypedBindingTableInitializer
-   ;
+    : BINDING? TABLE sessionSetParameterName optTypedBindingTableInitializer
+    ;
 
 sessionSetValueParameterClause
-   : VALUE sessionSetParameterName optTypedValueInitializer
-   ;
+    : VALUE sessionSetParameterName optTypedValueInitializer
+    ;
 
 sessionSetParameterName
-   : (IF NOT EXISTS)? sessionParameterSpecification
-   ;
+    : (IF NOT EXISTS)? sessionParameterSpecification
+    ;
 
 // 7.2 <session reset command>
 
 sessionResetCommand
-   : SESSION RESET sessionResetArguments?
-   ;
+    : SESSION RESET sessionResetArguments?
+    ;
 
 sessionResetArguments
-   : ALL? (PARAMETERS | CHARACTERISTICS)
-   | SCHEMA
-   | PROPERTY? GRAPH
-   | TIME ZONE
-   | PARAMETER? sessionParameterSpecification
-   ;
+    : ALL? (PARAMETERS | CHARACTERISTICS)
+    | SCHEMA
+    | PROPERTY? GRAPH
+    | TIME ZONE
+    | PARAMETER? sessionParameterSpecification
+    ;
 
 // 7.3 <session close command>
 
 sessionCloseCommand
-   : SESSION CLOSE
-   ;
+    : SESSION CLOSE
+    ;
 
 // 7.4 <session parameter specification>
 
 sessionParameterSpecification
-   : GENERAL_PARAMETER_REFERENCE
-   ;
+    : GENERAL_PARAMETER_REFERENCE
+    ;
 
 // 8.1 <start transaction command>
 
 startTransactionCommand
-   : START TRANSACTION transactionCharacteristics?
-   ;
+    : START TRANSACTION transactionCharacteristics?
+    ;
 
 // 8.2 <transaction characteristics>
 
 transactionCharacteristics
-   : transactionMode (COMMA transactionMode)*
-   ;
+    : transactionMode (COMMA transactionMode)*
+    ;
 
 transactionMode
-   : transactionAccessMode
-   ;
+    : transactionAccessMode
+    ;
 
 transactionAccessMode
-   : READ ONLY
-   | READ WRITE
-   ;
+    : READ ONLY
+    | READ WRITE
+    ;
 
 // 8.3 <rollback command>
 
 rollbackCommand
-   : ROLLBACK
-   ;
+    : ROLLBACK
+    ;
 
 // 8.4 <commit command>
 
 commitCommand
-   : COMMIT
-   ;
+    : COMMIT
+    ;
 
 // 9.1 <nested procedure specification>
 
 nestedProcedureSpecification
-   : LEFT_BRACE procedureSpecification RIGHT_BRACE
-   ;
+    : LEFT_BRACE procedureSpecification RIGHT_BRACE
+    ;
 
 // <catalog-modifying procedure specification>, <data-modifying procedure specification> and <query specification> are
 // identical productions. The specification distinguishes them in the BNF, but in the implementation, the distinction
 // has to be made sematically, in code, based on the kind of statements contained in the <procedure specification>.
 procedureSpecification
-   : procedureBody
-//   : catalogModifyingProcedureSpecification
-//   | dataModifyingProcedureSpecification
-//   | querySpecification
-   ;
+    : procedureBody
+//    : catalogModifyingProcedureSpecification
+//    | dataModifyingProcedureSpecification
+//    | querySpecification
+    ;
 
 //catalogModifyingProcedureSpecification
-//   : procedureBody
-//   ;
+//    : procedureBody
+//    ;
 
 nestedDataModifyingProcedureSpecification
-   : LEFT_BRACE procedureBody RIGHT_BRACE
-   ;
+    : LEFT_BRACE procedureBody RIGHT_BRACE
+    ;
 
 //dataModifyingProcedureSpecification
-//   : procedureBody
-//   ;
+//    : procedureBody
+//    ;
 
 nestedQuerySpecification
-   : LEFT_BRACE procedureBody RIGHT_BRACE
-   ;
+    : LEFT_BRACE procedureBody RIGHT_BRACE
+    ;
 
 //querySpecification
-//   : procedureBody
-//   ;
+//    : procedureBody
+//    ;
 
 // 9.2 <procedure body>
 
 procedureBody
-   : atSchemaClause? bindingVariableDefinitionBlock? statementBlock
-   ;
+    : atSchemaClause? bindingVariableDefinitionBlock? statementBlock
+    ;
 
 bindingVariableDefinitionBlock
-   : bindingVariableDefinition+
-   ;
+    : bindingVariableDefinition+
+    ;
 
 bindingVariableDefinition
-   : graphVariableDefinition
-   | bindingTableVariableDefinition
-   | valueVariableDefinition
-   ;
+    : graphVariableDefinition
+    | bindingTableVariableDefinition
+    | valueVariableDefinition
+    ;
 
 statementBlock
-   : statement nextStatement*
-   ;
+    : statement nextStatement*
+    ;
 
 statement
-   : linearCatalogModifyingStatement
-   | linearDataModifyingStatement
-   | compositeQueryStatement
-   ;
+    : linearCatalogModifyingStatement
+    | linearDataModifyingStatement
+    | compositeQueryStatement
+    ;
 
 nextStatement
-   : NEXT yieldClause? statement
-   ;
+    : NEXT yieldClause? statement
+    ;
 
 // 10.1 <graph variable definition>
 
 graphVariableDefinition
-   : PROPERTY? GRAPH bindingVariable optTypedGraphInitializer
-   ;
+    : PROPERTY? GRAPH bindingVariable optTypedGraphInitializer
+    ;
 
 optTypedGraphInitializer
-   : (typed? graphReferenceValueType)? graphInitializer
-   ;
+    : (typed? graphReferenceValueType)? graphInitializer
+    ;
 
 graphInitializer
-   : EQUALS_OPERATOR graphExpression
-   ;
+    : EQUALS_OPERATOR graphExpression
+    ;
 
 // 10.2 <binding table variable definition>
 
 bindingTableVariableDefinition
-   : BINDING? TABLE bindingVariable optTypedBindingTableInitializer
-   ;
+    : BINDING? TABLE bindingVariable optTypedBindingTableInitializer
+    ;
 
 optTypedBindingTableInitializer
-   : (typed? bindingTableReferenceValueType)? bindingTableInitializer
-   ;
+    : (typed? bindingTableReferenceValueType)? bindingTableInitializer
+    ;
 
 bindingTableInitializer
-   : EQUALS_OPERATOR bindingTableExpression
-   ;
+    : EQUALS_OPERATOR bindingTableExpression
+    ;
 
 // 10.3 <value variable definition>
 
 valueVariableDefinition
-   : VALUE bindingVariable optTypedValueInitializer
-   ;
+    : VALUE bindingVariable optTypedValueInitializer
+    ;
 
 optTypedValueInitializer
-   : (typed? valueType)? valueInitializer
-   ;
+    : (typed? valueType)? valueInitializer
+    ;
 
 valueInitializer
-   : EQUALS_OPERATOR valueExpression
-   ;
+    : EQUALS_OPERATOR valueExpression
+    ;
 
 // 11.1 <graph expression>
 
 graphExpression
-   : objectExpressionPrimary
-   | graphReference
-   | objectNameOrBindingVariable
-   | currentGraph
-   ;
+    : objectExpressionPrimary
+    | graphReference
+    | objectNameOrBindingVariable
+    | currentGraph
+    ;
 
 currentGraph
-   : CURRENT_PROPERTY_GRAPH
-   | CURRENT_GRAPH
-   ;
+    : CURRENT_PROPERTY_GRAPH
+    | CURRENT_GRAPH
+    ;
 
 // 11.2 <binding table expression>
 
 bindingTableExpression
-   : nestedBindingTableQuerySpecification
-   | objectExpressionPrimary
-   | bindingTableReference
-   | objectNameOrBindingVariable
-   ;
+    : nestedBindingTableQuerySpecification
+    | objectExpressionPrimary
+    | bindingTableReference
+    | objectNameOrBindingVariable
+    ;
 
 nestedBindingTableQuerySpecification
-   : nestedQuerySpecification
-   ;
+    : nestedQuerySpecification
+    ;
 
 // 11.3 <object expression primary>
 
 objectExpressionPrimary
-   : VARIABLE valueExpressionPrimary
-   | parenthesizedValueExpression
-   | nonParenthesizedValueExpressionPrimarySpecialCase
-   ;
+    : VARIABLE valueExpressionPrimary
+    | parenthesizedValueExpression
+    | nonParenthesizedValueExpressionPrimarySpecialCase
+    ;
 
 // 12.1 <linear catalog-modifying statement>
 
 linearCatalogModifyingStatement
-   : simpleCatalogModifyingStatement+
-   ;
+    : simpleCatalogModifyingStatement+
+    ;
 
 simpleCatalogModifyingStatement
-   : primitiveCatalogModifyingStatement
-   | callCatalogModifyingProcedureStatement
-   ;
+    : primitiveCatalogModifyingStatement
+    | callCatalogModifyingProcedureStatement
+    ;
 
 primitiveCatalogModifyingStatement
-   : createSchemaStatement
-   | dropSchemaStatement
-   | createGraphStatement
-   | dropGraphStatement
-   | createGraphTypeStatement
-   | dropGraphTypeStatement
-   ;
+    : createSchemaStatement
+    | dropSchemaStatement
+    | createGraphStatement
+    | dropGraphStatement
+    | createGraphTypeStatement
+    | dropGraphTypeStatement
+    ;
 
 // 12.2 <insert schema statement>
 
 createSchemaStatement
-   : CREATE SCHEMA (IF NOT EXISTS)? catalogSchemaParentAndName
-   ;
+    : CREATE SCHEMA (IF NOT EXISTS)? catalogSchemaParentAndName
+    ;
 
 // 12.3 <drop schema statement>
 
 dropSchemaStatement
-   : DROP SCHEMA (IF EXISTS)? catalogSchemaParentAndName
-   ;
+    : DROP SCHEMA (IF EXISTS)? catalogSchemaParentAndName
+    ;
 
 // 12.4 <insert graph statement>
 
 createGraphStatement
-   : CREATE (PROPERTY? GRAPH (IF NOT EXISTS)? | OR REPLACE PROPERTY? GRAPH) catalogGraphParentAndName (openGraphType | ofGraphType) graphSource?
-   ;
+    : CREATE (PROPERTY? GRAPH (IF NOT EXISTS)? | OR REPLACE PROPERTY? GRAPH) catalogGraphParentAndName (openGraphType | ofGraphType) graphSource?
+    ;
 
 openGraphType
-   : typed? ANY (PROPERTY? GRAPH)?
-   ;
+    : typed? ANY (PROPERTY? GRAPH)?
+    ;
 
 ofGraphType
-   : graphTypeLikeGraph
-   | typed? graphTypeReference
-   | typed? (PROPERTY? GRAPH)? nestedGraphTypeSpecification
-   ;
+    : graphTypeLikeGraph
+    | typed? graphTypeReference
+    | typed? (PROPERTY? GRAPH)? nestedGraphTypeSpecification
+    ;
 
 graphTypeLikeGraph
-   : LIKE graphExpression
-   ;
+    : LIKE graphExpression
+    ;
 
 graphSource
-   : AS COPY OF graphExpression
-   ;
+    : AS COPY OF graphExpression
+    ;
 
 // 12.5 <drop graph statement>
 
 dropGraphStatement
-   : DROP PROPERTY? GRAPH (IF EXISTS)? catalogGraphParentAndName
-   ;
+    : DROP PROPERTY? GRAPH (IF EXISTS)? catalogGraphParentAndName
+    ;
 
 // 12.6 <graph type statement>
 
 createGraphTypeStatement
-   : CREATE (PROPERTY? GRAPH TYPE (IF NOT EXISTS)? | OR REPLACE PROPERTY? GRAPH TYPE) catalogGraphTypeParentAndName graphTypeSource
-   ;
+    : CREATE (PROPERTY? GRAPH TYPE (IF NOT EXISTS)? | OR REPLACE PROPERTY? GRAPH TYPE) catalogGraphTypeParentAndName graphTypeSource
+    ;
 
 graphTypeSource
-   : AS? copyOfGraphType
-   | graphTypeLikeGraph
-   | AS? nestedGraphTypeSpecification
-   ;
+    : AS? copyOfGraphType
+    | graphTypeLikeGraph
+    | AS? nestedGraphTypeSpecification
+    ;
 
 copyOfGraphType
-   : COPY OF graphTypeReference
-   ;
+    : COPY OF graphTypeReference
+    ;
 
 // 12.7 <drop graph statement>
 
 dropGraphTypeStatement
-   : DROP PROPERTY? GRAPH TYPE (IF EXISTS)? catalogGraphTypeParentAndName
-   ;
+    : DROP PROPERTY? GRAPH TYPE (IF EXISTS)? catalogGraphTypeParentAndName
+    ;
 
 // 12.8 <call catalog-modifying statement>
 
 callCatalogModifyingProcedureStatement
-   : callProcedureStatement
-   ;
+    : callProcedureStatement
+    ;
 
 // 13.1 <linear data-modifying statement>
 
 linearDataModifyingStatement
-   : focusedLinearDataModifyingStatement
-   | ambientLinearDataModifyingStatement
-   ;
+    : focusedLinearDataModifyingStatement
+    | ambientLinearDataModifyingStatement
+    ;
 
 focusedLinearDataModifyingStatement
-   : focusedLinearDataModifyingStatementBody
-   | focusedNestedDataModifyingProcedureSpecification
-   ;
+    : focusedLinearDataModifyingStatementBody
+    | focusedNestedDataModifyingProcedureSpecification
+    ;
 
 focusedLinearDataModifyingStatementBody
-   : useGraphClause simpleLinearDataAccessingStatement primitiveResultStatement?
-   ;
+    : useGraphClause simpleLinearDataAccessingStatement primitiveResultStatement?
+    ;
 
 focusedNestedDataModifyingProcedureSpecification
-   : useGraphClause nestedDataModifyingProcedureSpecification
-   ;
+    : useGraphClause nestedDataModifyingProcedureSpecification
+    ;
 
 ambientLinearDataModifyingStatement
-   : ambientLinearDataModifyingStatementBody
-   | nestedDataModifyingProcedureSpecification
-   ;
+    : ambientLinearDataModifyingStatementBody
+    | nestedDataModifyingProcedureSpecification
+    ;
 
 ambientLinearDataModifyingStatementBody
-   : simpleLinearDataAccessingStatement primitiveResultStatement?
-   ;
+    : simpleLinearDataAccessingStatement primitiveResultStatement?
+    ;
 
 simpleLinearDataAccessingStatement
-   : simpleDataAccessingStatement+
-   ;
+    : simpleDataAccessingStatement+
+    ;
 
 simpleDataAccessingStatement
-   : simpleQueryStatement
-   | simpleDataModifyingStatement
-   ;
+    : simpleQueryStatement
+    | simpleDataModifyingStatement
+    ;
 
 simpleDataModifyingStatement
-   : primitiveDataModifyingStatement
-   | callDataModifyingProcedureStatement
-   ;
+    : primitiveDataModifyingStatement
+    | callDataModifyingProcedureStatement
+    ;
 
 primitiveDataModifyingStatement
-   : insertStatement
-   | setStatement
-   | removeStatement
-   | deleteStatement
-   ;
+    : insertStatement
+    | setStatement
+    | removeStatement
+    | deleteStatement
+    ;
 
 // 13.2 <insertStatement>
 
 insertStatement
-   : INSERT insertGraphPattern
-   ;
+    : INSERT insertGraphPattern
+    ;
 
 // 13.3 <set statement>
 
 setStatement
-   : SET setItemList
-   ;
+    : SET setItemList
+    ;
 
 setItemList
-   : setItem (COMMA setItem)*
-   ;
+    : setItem (COMMA setItem)*
+    ;
 
 setItem
-   : setPropertyItem
-   | setAllPropertiesItem
-   | setLabelItem
-   ;
+    : setPropertyItem
+    | setAllPropertiesItem
+    | setLabelItem
+    ;
 
 setPropertyItem
-   : bindingVariableReference PERIOD propertyName EQUALS_OPERATOR valueExpression
-   ;
+    : bindingVariableReference PERIOD propertyName EQUALS_OPERATOR valueExpression
+    ;
 
 setAllPropertiesItem
-   : bindingVariableReference EQUALS_OPERATOR LEFT_BRACE propertyKeyValuePairList? RIGHT_BRACE
-   ;
+    : bindingVariableReference EQUALS_OPERATOR LEFT_BRACE propertyKeyValuePairList? RIGHT_BRACE
+    ;
 
 setLabelItem
-   : bindingVariableReference isOrColon labelName
-   ;
+    : bindingVariableReference isOrColon labelName
+    ;
 
 // 13.4 <remove statement>
 
 removeStatement
-   : REMOVE removeItemList
-   ;
+    : REMOVE removeItemList
+    ;
 
 removeItemList
-   : removeItem (COMMA removeItem)*
-   ;
+    : removeItem (COMMA removeItem)*
+    ;
 
 removeItem
-   : removePropertyItem
-   | removeLabelItem
-   ;
+    : removePropertyItem
+    | removeLabelItem
+    ;
 
 removePropertyItem
-   : bindingVariableReference PERIOD propertyName
-   ;
+    : bindingVariableReference PERIOD propertyName
+    ;
 
 removeLabelItem
-   : bindingVariableReference isOrColon labelName
-   ;
+    : bindingVariableReference isOrColon labelName
+    ;
 
 // 13.5 <delete statement>
 
 deleteStatement
-   : (DETACH | NODETACH)? DELETE deleteItemList
-   ;
+    : (DETACH | NODETACH)? DELETE deleteItemList
+    ;
 
 deleteItemList
-   : deleteItem (COMMA deleteItem)*
-   ;
+    : deleteItem (COMMA deleteItem)*
+    ;
 
 deleteItem
-   : valueExpression
-   ;
+    : valueExpression
+    ;
 
 // 13.6 <call data-modifying procedure statement>
 
 callDataModifyingProcedureStatement
-   : callProcedureStatement
-   ;
+    : callProcedureStatement
+    ;
 
 // 14.1 <composite query statement>
 
 compositeQueryStatement
-   : compositeQueryExpression
-   ;
+    : compositeQueryExpression
+    ;
 
 // 14.2 <composite query expression>
 
 compositeQueryExpression
-   : compositeQueryExpression queryConjunction compositeQueryPrimary
-   | compositeQueryPrimary
-   ;
+    : compositeQueryExpression queryConjunction compositeQueryPrimary
+    | compositeQueryPrimary
+    ;
 
 queryConjunction
-   : setOperator
-   | OTHERWISE
-   ;
+    : setOperator
+    | OTHERWISE
+    ;
 
 setOperator
-   : UNION setQuantifier?
-   | EXCEPT setQuantifier?
-   | INTERSECT setQuantifier?
-   ;
+    : UNION setQuantifier?
+    | EXCEPT setQuantifier?
+    | INTERSECT setQuantifier?
+    ;
 
 compositeQueryPrimary
-   : linearQueryStatement
-   ;
+    : linearQueryStatement
+    ;
 
 // 14.3 <linear query statement> and <simple query statement>
 
 linearQueryStatement
-   : focusedLinearQueryStatement
-   | ambientLinearQueryStatement
-   ;
+    : focusedLinearQueryStatement
+    | ambientLinearQueryStatement
+    ;
 
 focusedLinearQueryStatement
-   : focusedLinearQueryStatementPart* focusedLinearQueryAndPrimitiveResultStatementPart
-   | focusedPrimitiveResultStatement
-   | focusedNestedQuerySpecification
-   | selectStatement
-   ;
+    : focusedLinearQueryStatementPart* focusedLinearQueryAndPrimitiveResultStatementPart
+    | focusedPrimitiveResultStatement
+    | focusedNestedQuerySpecification
+    | selectStatement
+    ;
 
 focusedLinearQueryStatementPart
-   : useGraphClause simpleLinearQueryStatement
-   ;
+    : useGraphClause simpleLinearQueryStatement
+    ;
 
 focusedLinearQueryAndPrimitiveResultStatementPart
-   : useGraphClause simpleLinearQueryStatement primitiveResultStatement
-   ;
+    : useGraphClause simpleLinearQueryStatement primitiveResultStatement
+    ;
 
 focusedPrimitiveResultStatement
-   : useGraphClause primitiveResultStatement
-   ;
+    : useGraphClause primitiveResultStatement
+    ;
 
 focusedNestedQuerySpecification
-   : useGraphClause nestedQuerySpecification
-   ;
+    : useGraphClause nestedQuerySpecification
+    ;
 
 ambientLinearQueryStatement
-   : simpleLinearQueryStatement? primitiveResultStatement
-   | nestedQuerySpecification
-   ;
+    : simpleLinearQueryStatement? primitiveResultStatement
+    | nestedQuerySpecification
+    ;
 
 simpleLinearQueryStatement
-   : simpleQueryStatement+
-   ;
+    : simpleQueryStatement+
+    ;
 
 simpleQueryStatement
-   : primitiveQueryStatement
-   | callQueryStatement
-   ;
+    : primitiveQueryStatement
+    | callQueryStatement
+    ;
 
 primitiveQueryStatement
-   : matchStatement
-   | letStatement
-   | forStatement
-   | filterStatement
-   | orderByAndPageStatement
-   ;
+    : matchStatement
+    | letStatement
+    | forStatement
+    | filterStatement
+    | orderByAndPageStatement
+    ;
 
 // 14.4 <match statement>
 
 matchStatement
-   : simpleMatchStatement
-   | optionalMatchStatement
-   ;
+    : simpleMatchStatement
+    | optionalMatchStatement
+    ;
 
 simpleMatchStatement
-   : MATCH graphPatternBindingTable
-   ;
+    : MATCH graphPatternBindingTable
+    ;
 
 optionalMatchStatement
-   : OPTIONAL optionalOperand
-   ;
+    : OPTIONAL optionalOperand
+    ;
 
 optionalOperand
-   : simpleMatchStatement
-   | LEFT_BRACE matchStatementBlock RIGHT_BRACE
-   | LEFT_PAREN matchStatementBlock RIGHT_PAREN
-   ;
+    : simpleMatchStatement
+    | LEFT_BRACE matchStatementBlock RIGHT_BRACE
+    | LEFT_PAREN matchStatementBlock RIGHT_PAREN
+    ;
 
 matchStatementBlock
-   : matchStatement+
-   ;
+    : matchStatement+
+    ;
 
 // 14.5 <call query statement>
 
 callQueryStatement
-   : callProcedureStatement
-   ;
+    : callProcedureStatement
+    ;
 
 // 14.6 <filter statement>
 
 filterStatement
-   : FILTER (whereClause | searchCondition)
-   ;
+    : FILTER (whereClause | searchCondition)
+    ;
 
 // 14.7 <let statement>
 
 letStatement
-   : LET letVariableDefinitionList
-   ;
+    : LET letVariableDefinitionList
+    ;
 
 letVariableDefinitionList
-   : letVariableDefinition (COMMA letVariableDefinition)*
-   ;
+    : letVariableDefinition (COMMA letVariableDefinition)*
+    ;
 
 letVariableDefinition
-   : valueVariableDefinition
-   | bindingVariable EQUALS_OPERATOR valueExpression
-   ;
+    : valueVariableDefinition
+    | bindingVariable EQUALS_OPERATOR valueExpression
+    ;
 
 // 14.8 <for statement>
 
 forStatement
-   : FOR forItem forOrdinalityOrOffset?
-   ;
+    : FOR forItem forOrdinalityOrOffset?
+    ;
 
 forItem
-   : forItemAlias forItemSource
-   ;
+    : forItemAlias forItemSource
+    ;
 
 forItemAlias
-   : bindingVariable IN
-   ;
+    : bindingVariable IN
+    ;
 
 forItemSource
-   : listValueExpression
-   | bindingTableReferenceValueExpression
-   ;
+    : listValueExpression
+    | bindingTableReferenceValueExpression
+    ;
 
 forOrdinalityOrOffset
-   : WITH (ORDINALITY | OFFSET) bindingVariable
-   ;
+    : WITH (ORDINALITY | OFFSET) bindingVariable
+    ;
 
 // 14.9 <order by and page statement>
 
 orderByAndPageStatement
-   : orderByClause offsetClause? limitClause?
-   | offsetClause limitClause?
-   | limitClause
-   ;
+    : orderByClause offsetClause? limitClause?
+    | offsetClause limitClause?
+    | limitClause
+    ;
 
 // 14.10 <primitive result statement>
 
 primitiveResultStatement
-   : returnStatement orderByAndPageStatement?
-   | FINISH
-   ;
+    : returnStatement orderByAndPageStatement?
+    | FINISH
+    ;
 
 // 14.11 <return statement>
 
 returnStatement
-   : RETURN returnStatementBody
-   ;
+    : RETURN returnStatementBody
+    ;
 
 returnStatementBody
-   : setQuantifier? (ASTERISK | returnItemList) groupByClause?
-   | NO BINDINGS
-   ;
+    : setQuantifier? (ASTERISK | returnItemList) groupByClause?
+    | NO BINDINGS
+    ;
 
 returnItemList
-   : returnItem (COMMA returnItem)*
-   ;
+    : returnItem (COMMA returnItem)*
+    ;
 
 returnItem
-   : aggregatingValueExpression returnItemAlias?
-   ;
+    : aggregatingValueExpression returnItemAlias?
+    ;
 
 returnItemAlias
-   : AS identifier
-   ;
+    : AS identifier
+    ;
 
 // 14.12 <select statement>
 
 selectStatement
-   : SELECT setQuantifier? (ASTERISK | selectItemList) (selectStatementBody whereClause? groupByClause? havingClause? orderByClause? offsetClause? limitClause?)?
-   ;
+    : SELECT setQuantifier? (ASTERISK | selectItemList) (selectStatementBody whereClause? groupByClause? havingClause? orderByClause? offsetClause? limitClause?)?
+    ;
 
 selectItemList
-   : selectItem (COMMA selectItem)*
-   ;
+    : selectItem (COMMA selectItem)*
+    ;
 
 selectItem
-   : aggregatingValueExpression selectItemAlias?
-   ;
+    : aggregatingValueExpression selectItemAlias?
+    ;
 
 selectItemAlias
-   : AS identifier
-   ;
+    : AS identifier
+    ;
 
 havingClause
-   : HAVING searchCondition
-   ;
+    : HAVING searchCondition
+    ;
 
 selectStatementBody
-   : FROM (selectGraphMatchList | selectQuerySpecification)
-   ;
+    : FROM (selectGraphMatchList | selectQuerySpecification)
+    ;
 
 selectGraphMatchList
-   : selectGraphMatch (COMMA selectGraphMatch)*
-   ;
+    : selectGraphMatch (COMMA selectGraphMatch)*
+    ;
 
 selectGraphMatch
-   : graphExpression matchStatement
-   ;
+    : graphExpression matchStatement
+    ;
 
 selectQuerySpecification
-   : nestedQuerySpecification
-   | graphExpression nestedQuerySpecification
-   ;
+    : nestedQuerySpecification
+    | graphExpression nestedQuerySpecification
+    ;
 
 // 15.1 <call procedure statement> and <procedure call>
 
 callProcedureStatement
-   : OPTIONAL? CALL procedureCall
-   ;
+    : OPTIONAL? CALL procedureCall
+    ;
 
 procedureCall
-   : inlineProcedureCall
-   | namedProcedureCall
-   ;
+    : inlineProcedureCall
+    | namedProcedureCall
+    ;
 
 // 15.2 <inline procedure call>
 
 inlineProcedureCall
-   : variableScopeClause? nestedProcedureSpecification
-   ;
+    : variableScopeClause? nestedProcedureSpecification
+    ;
 
 variableScopeClause
-   : LEFT_PAREN bindingVariableReferenceList? RIGHT_PAREN
-   ;
+    : LEFT_PAREN bindingVariableReferenceList? RIGHT_PAREN
+    ;
 
 bindingVariableReferenceList
-   : bindingVariableReference (COMMA bindingVariableReference)*
-   ;
+    : bindingVariableReference (COMMA bindingVariableReference)*
+    ;
 
 // 15.3 <named procedure call>
 
 namedProcedureCall
-   : procedureReference LEFT_PAREN procedureArgumentList? RIGHT_PAREN yieldClause?
-   ;
+    : procedureReference LEFT_PAREN procedureArgumentList? RIGHT_PAREN yieldClause?
+    ;
 
 procedureArgumentList
-   : procedureArgument (COMMA procedureArgument)*
-   ;
+    : procedureArgument (COMMA procedureArgument)*
+    ;
 
 procedureArgument
-   : valueExpression
-   ;
+    : valueExpression
+    ;
 
 // 16.1 <at schema clasue>
 
 atSchemaClause
-   : AT schemaReference
-   ;
+    : AT schemaReference
+    ;
 
 // 16.2 <use graph clause>
 
 useGraphClause
-   : USE graphExpression
-   ;
+    : USE graphExpression
+    ;
 
 // 16.3 <graph pattern binding table>
 
 graphPatternBindingTable
-   : graphPattern graphPatternYieldClause?
-   ;
+    : graphPattern graphPatternYieldClause?
+    ;
 
 graphPatternYieldClause
-   : YIELD graphPatternYieldItemList
-   ;
+    : YIELD graphPatternYieldItemList
+    ;
 
 graphPatternYieldItemList
-   : graphPatternYieldItem (COMMA graphPatternYieldItem)*
-   | NO BINDINGS
-   ;
+    : graphPatternYieldItem (COMMA graphPatternYieldItem)*
+    | NO BINDINGS
+    ;
 
 graphPatternYieldItem
-   : elementVariableReference
-   | pathVariableReference
-   ;
+    : elementVariableReference
+    | pathVariableReference
+    ;
 
 // 16.4 <graph pattern>
 
 graphPattern
-   : matchMode? pathPatternList keepClause? graphPatternWhereClause?
-   ;
+    : matchMode? pathPatternList keepClause? graphPatternWhereClause?
+    ;
 
 matchMode
-   : repeatableElementsMatchMode
-   | differentEdgesMatchMode
-   ;
+    : repeatableElementsMatchMode
+    | differentEdgesMatchMode
+    ;
 
 repeatableElementsMatchMode
-   : REPEATABLE elementBindingsOrElements
-   ;
+    : REPEATABLE elementBindingsOrElements
+    ;
 
 differentEdgesMatchMode
-   : DIFFERENT edgeBindingsOrEdges
-   ;
+    : DIFFERENT edgeBindingsOrEdges
+    ;
 
 elementBindingsOrElements
-   : ELEMENT BINDINGS?
-   | ELEMENTS
-   ;
+    : ELEMENT BINDINGS?
+    | ELEMENTS
+    ;
 
 edgeBindingsOrEdges
-   : EDGE_SYNONYM BINDINGS?
-   | EDGES_SYNONYM
-   ;
+    : EDGE_SYNONYM BINDINGS?
+    | EDGES_SYNONYM
+    ;
 
 pathPatternList
-   : pathPattern (COMMA pathPattern)*
-   ;
+    : pathPattern (COMMA pathPattern)*
+    ;
 
 pathPattern
-   : pathVariableDeclaration? pathPatternPrefix? pathPatternExpression
-   ;
+    : pathVariableDeclaration? pathPatternPrefix? pathPatternExpression
+    ;
 
 pathVariableDeclaration
-   : pathVariable EQUALS_OPERATOR
-   ;
+    : pathVariable EQUALS_OPERATOR
+    ;
 
 keepClause
-   : KEEP pathPatternPrefix
-   ;
+    : KEEP pathPatternPrefix
+    ;
 
 graphPatternWhereClause
-   : WHERE searchCondition
-   ;
+    : WHERE searchCondition
+    ;
 
 // 16.5 <insert graph pattern>
 
 insertGraphPattern
-   : insertPathPatternList
-   ;
+    : insertPathPatternList
+    ;
 
 insertPathPatternList
-   : insertPathPattern (COMMA insertPathPattern)*
-   ;
+    : insertPathPattern (COMMA insertPathPattern)*
+    ;
 
 insertPathPattern
-   : insertNodePattern (insertEdgePattern insertNodePattern)*
-   ;
+    : insertNodePattern (insertEdgePattern insertNodePattern)*
+    ;
 
 insertNodePattern
-   : LEFT_PAREN insertElementPatternFiller? RIGHT_PAREN
-   ;
+    : LEFT_PAREN insertElementPatternFiller? RIGHT_PAREN
+    ;
 
 insertEdgePattern
-   : insertEdgePointingLeft
-   | insertEdgePointingRight
-   | insertEdgeUndirected
-   ;
+    : insertEdgePointingLeft
+    | insertEdgePointingRight
+    | insertEdgeUndirected
+    ;
 
 insertEdgePointingLeft
-   : LEFT_ARROW_BRACKET insertElementPatternFiller? RIGHT_BRACKET_MINUS
-   ;
+    : LEFT_ARROW_BRACKET insertElementPatternFiller? RIGHT_BRACKET_MINUS
+    ;
 
 insertEdgePointingRight
-   : MINUS_LEFT_BRACKET insertElementPatternFiller? BRACKET_RIGHT_ARROW
-   ;
+    : MINUS_LEFT_BRACKET insertElementPatternFiller? BRACKET_RIGHT_ARROW
+    ;
 
 insertEdgeUndirected
-   : TILDE_LEFT_BRACKET insertElementPatternFiller? RIGHT_BRACKET_TILDE
-   ;
+    : TILDE_LEFT_BRACKET insertElementPatternFiller? RIGHT_BRACKET_TILDE
+    ;
 
 insertElementPatternFiller
-   : elementVariableDeclaration labelAndPropertySetSpecification?
-   | elementVariableDeclaration? labelAndPropertySetSpecification
-   ;
+    : elementVariableDeclaration labelAndPropertySetSpecification?
+    | elementVariableDeclaration? labelAndPropertySetSpecification
+    ;
 
 labelAndPropertySetSpecification
-   : isOrColon labelSetSpecification elementPropertySpecification?
-   | (isOrColon labelSetSpecification)? elementPropertySpecification
-   ;
+    : isOrColon labelSetSpecification elementPropertySpecification?
+    | (isOrColon labelSetSpecification)? elementPropertySpecification
+    ;
 
 // 16.6 <path pattern prefix>
 
 pathPatternPrefix
-   : pathModePrefix
-   | pathSearchPrefix
-   ;
+    : pathModePrefix
+    | pathSearchPrefix
+    ;
 
 pathModePrefix
-   : pathMode pathOrPaths?
-   ;
+    : pathMode pathOrPaths?
+    ;
 
 pathMode
-   : WALK
-   | TRAIL
-   | SIMPLE
-   | ACYCLIC
-   ;
+    : WALK
+    | TRAIL
+    | SIMPLE
+    | ACYCLIC
+    ;
 
 pathSearchPrefix
-   : allPathSearch
-   | anyPathSearch
-   | shortestPathSearch
-   ;
+    : allPathSearch
+    | anyPathSearch
+    | shortestPathSearch
+    ;
 
 allPathSearch
-   : ALL pathMode? pathOrPaths?
-   ;
+    : ALL pathMode? pathOrPaths?
+    ;
 
 pathOrPaths
-   : PATH
-   | PATHS
-   ;
+    : PATH
+    | PATHS
+    ;
 
 anyPathSearch
-   : ANY numberOfPaths? pathMode? pathOrPaths?
-   ;
+    : ANY numberOfPaths? pathMode? pathOrPaths?
+    ;
 
 numberOfPaths
-   : nonNegativeIntegerSpecification
-   ;
+    : nonNegativeIntegerSpecification
+    ;
 
 shortestPathSearch
-   : allShortestPathSearch
-   | anyShortestPathSearch
-   | countedShortestPathSearch
-   | countedShortestGroupSearch
-   ;
+    : allShortestPathSearch
+    | anyShortestPathSearch
+    | countedShortestPathSearch
+    | countedShortestGroupSearch
+    ;
 
 allShortestPathSearch
-   : ALL SHORTEST pathMode? pathOrPaths?
-   ;
+    : ALL SHORTEST pathMode? pathOrPaths?
+    ;
 
 anyShortestPathSearch
-   : ANY SHORTEST pathMode? pathOrPaths?
-   ;
+    : ANY SHORTEST pathMode? pathOrPaths?
+    ;
 
 countedShortestPathSearch
-   : SHORTEST numberOfPaths pathMode? pathOrPaths?
-   ;
+    : SHORTEST numberOfPaths pathMode? pathOrPaths?
+    ;
 
 countedShortestGroupSearch
-   : SHORTEST numberOfGroups? pathMode? pathOrPaths? (GROUP | GROUPS)
-   ;
+    : SHORTEST numberOfGroups? pathMode? pathOrPaths? (GROUP | GROUPS)
+    ;
 
 numberOfGroups
-   : nonNegativeIntegerSpecification
-   ;
+    : nonNegativeIntegerSpecification
+    ;
 
 // 16.7 <path pattern expression>
 
 pathPatternExpression
-   : pathTerm
-   | pathMultisetAlternation
-   | pathPatternUnion
-   ;
+    : pathTerm
+    | pathMultisetAlternation
+    | pathPatternUnion
+    ;
 
 pathMultisetAlternation
-   : pathTerm MULTISET_ALTERNATION_OPERATOR pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)*
-   ;
+    : pathTerm MULTISET_ALTERNATION_OPERATOR pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)*
+    ;
 
 pathPatternUnion
-   : pathTerm VERTICAL_BAR pathTerm (VERTICAL_BAR pathTerm)*
-   ;
+    : pathTerm VERTICAL_BAR pathTerm (VERTICAL_BAR pathTerm)*
+    ;
 
 pathTerm
-   : pathFactor             #pathFactorLabel
-   | pathTerm pathFactor    #pathConcatenationLabel
-   ;
+    : pathFactor                #pathFactorLabel
+    | pathTerm pathFactor     #pathConcatenationLabel
+    ;
 
 pathFactor
-   : pathPrimary
-   | quantifiedPathPrimary
-   | questionedPathPrimary
-   ;
+    : pathPrimary
+    | quantifiedPathPrimary
+    | questionedPathPrimary
+    ;
 
 quantifiedPathPrimary
-   : pathPrimary graphPatternQuantifier
-   ;
+    : pathPrimary graphPatternQuantifier
+    ;
 
 questionedPathPrimary
-   : pathPrimary QUESTION_MARK
-   ;
+    : pathPrimary QUESTION_MARK
+    ;
 
 pathPrimary
-   : elementPattern
-   | parenthesizedPathPatternExpression
-   | simplifiedPathPatternExpression
-   ;
+    : elementPattern
+    | parenthesizedPathPatternExpression
+    | simplifiedPathPatternExpression
+    ;
 
 elementPattern
-   : nodePattern
-   | edgePattern
-   ;
+    : nodePattern
+    | edgePattern
+    ;
 
 nodePattern
-   : LEFT_PAREN elementPatternFiller RIGHT_PAREN
-   ;
+    : LEFT_PAREN elementPatternFiller RIGHT_PAREN
+    ;
 
 elementPatternFiller
-   : elementVariableDeclaration? isLabelExpression? elementPatternPredicate?
-   ;
+    : elementVariableDeclaration? isLabelExpression? elementPatternPredicate?
+    ;
 
 elementVariableDeclaration
-   : TEMP? elementVariable
-   ;
+    : TEMP? elementVariable
+    ;
 
 isLabelExpression
-   : isOrColon labelExpression
-   ;
+    : isOrColon labelExpression
+    ;
 
 isOrColon
-   : IS
-   | COLON
-   ;
+    : IS
+    | COLON
+    ;
 
 elementPatternPredicate
-   : elementPatternWhereClause
-   | elementPropertySpecification
-   ;
+    : elementPatternWhereClause
+    | elementPropertySpecification
+    ;
 
 elementPatternWhereClause
-   : WHERE searchCondition
-   ;
+    : WHERE searchCondition
+    ;
 
 elementPropertySpecification
-   : LEFT_BRACE propertyKeyValuePairList RIGHT_BRACE
-   ;
+    : LEFT_BRACE propertyKeyValuePairList RIGHT_BRACE
+    ;
 
 propertyKeyValuePairList
-   : propertyKeyValuePair (COMMA propertyKeyValuePair)*
-   ;
+    : propertyKeyValuePair (COMMA propertyKeyValuePair)*
+    ;
 
 propertyKeyValuePair
-   : propertyName COLON valueExpression
-   ;
+    : propertyName COLON valueExpression
+    ;
 
 edgePattern
-   : fullEdgePattern
-   | abbreviatedEdgePattern
-   ;
+    : fullEdgePattern
+    | abbreviatedEdgePattern
+    ;
 
 fullEdgePattern
-   : fullEdgePointingLeft
-   | fullEdgeUndirected
-   | fullEdgePointingRight
-   | fullEdgeLeftOrUndirected
-   | fullEdgeUndirectedOrRight
-   | fullEdgeLeftOrRight
-   | fullEdgeAnyDirection
-   ;
+    : fullEdgePointingLeft
+    | fullEdgeUndirected
+    | fullEdgePointingRight
+    | fullEdgeLeftOrUndirected
+    | fullEdgeUndirectedOrRight
+    | fullEdgeLeftOrRight
+    | fullEdgeAnyDirection
+    ;
 
 fullEdgePointingLeft
-   : LEFT_ARROW_BRACKET elementPatternFiller RIGHT_BRACKET_MINUS
-   ;
+    : LEFT_ARROW_BRACKET elementPatternFiller RIGHT_BRACKET_MINUS
+    ;
 
 fullEdgeUndirected
-   : TILDE_LEFT_BRACKET elementPatternFiller RIGHT_BRACKET_TILDE
-   ;
+    : TILDE_LEFT_BRACKET elementPatternFiller RIGHT_BRACKET_TILDE
+    ;
 
 fullEdgePointingRight
-   : MINUS_LEFT_BRACKET elementPatternFiller BRACKET_RIGHT_ARROW
-   ;
+    : MINUS_LEFT_BRACKET elementPatternFiller BRACKET_RIGHT_ARROW
+    ;
 
 fullEdgeLeftOrUndirected
-   : LEFT_ARROW_TILDE_BRACKET elementPatternFiller RIGHT_BRACKET_TILDE
-   ;
+    : LEFT_ARROW_TILDE_BRACKET elementPatternFiller RIGHT_BRACKET_TILDE
+    ;
 
 fullEdgeUndirectedOrRight
-   : TILDE_LEFT_BRACKET elementPatternFiller BRACKET_TILDE_RIGHT_ARROW
-   ;
+    : TILDE_LEFT_BRACKET elementPatternFiller BRACKET_TILDE_RIGHT_ARROW
+    ;
 
 fullEdgeLeftOrRight
-   : LEFT_ARROW_BRACKET elementPatternFiller BRACKET_RIGHT_ARROW
-   ;
+    : LEFT_ARROW_BRACKET elementPatternFiller BRACKET_RIGHT_ARROW
+    ;
 
 fullEdgeAnyDirection
-   : MINUS_LEFT_BRACKET elementPatternFiller RIGHT_BRACKET_MINUS
-   ;
+    : MINUS_LEFT_BRACKET elementPatternFiller RIGHT_BRACKET_MINUS
+    ;
 
 abbreviatedEdgePattern
-   : LEFT_ARROW
-   | TILDE
-   | RIGHT_ARROW
-   | LEFT_ARROW_TILDE
-   | TILDE_RIGHT_ARROW
-   | LEFT_MINUS_RIGHT
-   | MINUS_SIGN
-   ;
+    : LEFT_ARROW
+    | TILDE
+    | RIGHT_ARROW
+    | LEFT_ARROW_TILDE
+    | TILDE_RIGHT_ARROW
+    | LEFT_MINUS_RIGHT
+    | MINUS_SIGN
+    ;
 
 parenthesizedPathPatternExpression
-   : LEFT_PAREN subpathVariableDeclaration? pathModePrefix? pathPatternExpression parenthesizedPathPatternWhereClause? RIGHT_PAREN
-   ;
+    : LEFT_PAREN subpathVariableDeclaration? pathModePrefix? pathPatternExpression parenthesizedPathPatternWhereClause? RIGHT_PAREN
+    ;
 
 subpathVariableDeclaration
-   : subpathVariable EQUALS_OPERATOR
-   ;
+    : subpathVariable EQUALS_OPERATOR
+    ;
 
 parenthesizedPathPatternWhereClause
-   : WHERE searchCondition
-   ;
+    : WHERE searchCondition
+    ;
 
 // 16.8 <label expression>
 
 labelExpression
-   : labelTerm                                  #labelTermLabel
-   | labelExpression VERTICAL_BAR labelTerm     #labelDisjunctionLabel
-   ;
+    : labelTerm                                         #labelTermLabel
+    | labelExpression VERTICAL_BAR labelTerm      #labelDisjunctionLabel
+    ;
 
 labelTerm
-   : labelFactor                                #labelFactorLabel
-   | labelTerm AMPERSAND labelFactor            #labelConjunctionLabel
-   ;
+    : labelFactor                                      #labelFactorLabel
+    | labelTerm AMPERSAND labelFactor              #labelConjunctionLabel
+    ;
 
 labelFactor
-   : labelPrimary
-   | labelNegation
-   ;
+    : labelPrimary
+    | labelNegation
+    ;
 
 labelNegation
-   : EXCLAMATION_MARK labelPrimary
-   ;
+    : EXCLAMATION_MARK labelPrimary
+    ;
 
 labelPrimary
-   : labelName
-   | wildcardLabel
-   | parenthesizedLabelExpression
-   ;
+    : labelName
+    | wildcardLabel
+    | parenthesizedLabelExpression
+    ;
 
 wildcardLabel
-   : PERCENT
-   ;
+    : PERCENT
+    ;
 
 parenthesizedLabelExpression
-   : LEFT_PAREN labelExpression RIGHT_PAREN
-   ;
+    : LEFT_PAREN labelExpression RIGHT_PAREN
+    ;
 
 // 16.9 <path variable reference>
 
 pathVariableReference
-   : bindingVariableReference
-   ;
+    : bindingVariableReference
+    ;
 
 // 16.10 <element variable reference>
 
 elementVariableReference
-   : bindingVariableReference
-   ;
+    : bindingVariableReference
+    ;
 
 // 16.11 <graph pattern quantifier>
 
 graphPatternQuantifier
-   : ASTERISK
-   | PLUS_SIGN
-   | fixedQuantifier
-   | generalQuantifier
-   ;
+    : ASTERISK
+    | PLUS_SIGN
+    | fixedQuantifier
+    | generalQuantifier
+    ;
 
 fixedQuantifier
-   : LEFT_BRACE unsignedInteger RIGHT_BRACE
-   ;
+    : LEFT_BRACE unsignedInteger RIGHT_BRACE
+    ;
 
 generalQuantifier
-   : LEFT_BRACE lowerBound? COMMA upperBound? RIGHT_BRACE
-   ;
+    : LEFT_BRACE lowerBound? COMMA upperBound? RIGHT_BRACE
+    ;
 
 lowerBound
-   : unsignedInteger
-   ;
+    : unsignedInteger
+    ;
 
 upperBound
-   : unsignedInteger
-   ;
+    : unsignedInteger
+    ;
 
 // 16.12 <simplified path pattern expression>
 
 simplifiedPathPatternExpression
-   : simplifiedDefaultingLeft
-   | simplifiedDefaultingUndirected
-   | simplifiedDefaultingRight
-   | simplifiedDefaultingLeftOrUndirected
-   | simplifiedDefaultingUndirectedOrRight
-   | simplifiedDefaultingLeftOrRight
-   | simplifiedDefaultingAnyDirection
-   ;
+    : simplifiedDefaultingLeft
+    | simplifiedDefaultingUndirected
+    | simplifiedDefaultingRight
+    | simplifiedDefaultingLeftOrUndirected
+    | simplifiedDefaultingUndirectedOrRight
+    | simplifiedDefaultingLeftOrRight
+    | simplifiedDefaultingAnyDirection
+    ;
 
 simplifiedDefaultingLeft
-   : LEFT_MINUS_SLASH simplifiedContents SLASH_MINUS
-   ;
+    : LEFT_MINUS_SLASH simplifiedContents SLASH_MINUS
+    ;
 
 simplifiedDefaultingUndirected
-   : TILDE_SLASH simplifiedContents SLASH_TILDE
-   ;
+    : TILDE_SLASH simplifiedContents SLASH_TILDE
+    ;
 
 simplifiedDefaultingRight
-   : MINUS_SLASH simplifiedContents SLASH_MINUS_RIGHT
-   ;
+    : MINUS_SLASH simplifiedContents SLASH_MINUS_RIGHT
+    ;
 
 simplifiedDefaultingLeftOrUndirected
-   : LEFT_TILDE_SLASH simplifiedContents SLASH_TILDE
-   ;
+    : LEFT_TILDE_SLASH simplifiedContents SLASH_TILDE
+    ;
 
 simplifiedDefaultingUndirectedOrRight
-   : TILDE_SLASH simplifiedContents SLASH_TILDE_RIGHT
-   ;
+    : TILDE_SLASH simplifiedContents SLASH_TILDE_RIGHT
+    ;
 
 simplifiedDefaultingLeftOrRight
-   : LEFT_MINUS_SLASH simplifiedContents SLASH_MINUS_RIGHT
-   ;
+    : LEFT_MINUS_SLASH simplifiedContents SLASH_MINUS_RIGHT
+    ;
 
 simplifiedDefaultingAnyDirection
-   : MINUS_SLASH simplifiedContents SLASH_MINUS
-   ;
+    : MINUS_SLASH simplifiedContents SLASH_MINUS
+    ;
 
 simplifiedContents
-   : simplifiedTerm
-   | simplifiedPathUnion
-   | simplifiedMultisetAlternation
-   ;
+    : simplifiedTerm
+    | simplifiedPathUnion
+    | simplifiedMultisetAlternation
+    ;
 
 simplifiedPathUnion
-   : simplifiedTerm VERTICAL_BAR simplifiedTerm (VERTICAL_BAR simplifiedTerm)*
-   ;
+    : simplifiedTerm VERTICAL_BAR simplifiedTerm (VERTICAL_BAR simplifiedTerm)*
+    ;
 
 simplifiedMultisetAlternation
-   : simplifiedTerm MULTISET_ALTERNATION_OPERATOR simplifiedTerm (MULTISET_ALTERNATION_OPERATOR simplifiedTerm)*
-   ;
+    : simplifiedTerm MULTISET_ALTERNATION_OPERATOR simplifiedTerm (MULTISET_ALTERNATION_OPERATOR simplifiedTerm)*
+    ;
 
 simplifiedTerm
-   : simplifiedFactorLow                    #simplifiedFactorLowLabel
-   | simplifiedTerm simplifiedFactorLow     #simplifiedConcatenationLabel
-   ;
+    : simplifiedFactorLow                        #simplifiedFactorLowLabel
+    | simplifiedTerm simplifiedFactorLow      #simplifiedConcatenationLabel
+    ;
 
 simplifiedFactorLow
-   : simplifiedFactorHigh                               #simplifiedFactorHighLabel
-   | simplifiedFactorLow AMPERSAND simplifiedFactorHigh #simplifiedConjunctionLabel
-   ;
+    : simplifiedFactorHigh                                     #simplifiedFactorHighLabel
+    | simplifiedFactorLow AMPERSAND simplifiedFactorHigh #simplifiedConjunctionLabel
+    ;
 
 simplifiedFactorHigh
-   : simplifiedTertiary
-   | simplifiedQuantified
-   | simplifiedQuestioned
-   ;
+    : simplifiedTertiary
+    | simplifiedQuantified
+    | simplifiedQuestioned
+    ;
 
 simplifiedQuantified
-   : simplifiedTertiary graphPatternQuantifier
-   ;
+    : simplifiedTertiary graphPatternQuantifier
+    ;
 
 simplifiedQuestioned
-   : simplifiedTertiary QUESTION_MARK
-   ;
+    : simplifiedTertiary QUESTION_MARK
+    ;
 
 simplifiedTertiary
-   : simplifiedDirectionOverride
-   | simplifiedSecondary
-   ;
+    : simplifiedDirectionOverride
+    | simplifiedSecondary
+    ;
 
 simplifiedDirectionOverride
-   : simplifiedOverrideLeft
-   | simplifiedOverrideUndirected
-   | simplifiedOverrideRight
-   | simplifiedOverrideLeftOrUndirected
-   | simplifiedOverrideUndirectedOrRight
-   | simplifiedOverrideLeftOrRight
-   | simplifiedOverrideAnyDirection
-   ;
+    : simplifiedOverrideLeft
+    | simplifiedOverrideUndirected
+    | simplifiedOverrideRight
+    | simplifiedOverrideLeftOrUndirected
+    | simplifiedOverrideUndirectedOrRight
+    | simplifiedOverrideLeftOrRight
+    | simplifiedOverrideAnyDirection
+    ;
 
 simplifiedOverrideLeft
-   : LEFT_ANGLE_BRACKET simplifiedSecondary
-   ;
+    : LEFT_ANGLE_BRACKET simplifiedSecondary
+    ;
 
 simplifiedOverrideUndirected
-   : TILDE simplifiedSecondary
-   ;
+    : TILDE simplifiedSecondary
+    ;
 
 simplifiedOverrideRight
-   : simplifiedSecondary RIGHT_ANGLE_BRACKET
-   ;
+    : simplifiedSecondary RIGHT_ANGLE_BRACKET
+    ;
 
 simplifiedOverrideLeftOrUndirected
-   : LEFT_ARROW_TILDE simplifiedSecondary
-   ;
+    : LEFT_ARROW_TILDE simplifiedSecondary
+    ;
 
 simplifiedOverrideUndirectedOrRight
-   : TILDE simplifiedSecondary RIGHT_ANGLE_BRACKET
-   ;
+    : TILDE simplifiedSecondary RIGHT_ANGLE_BRACKET
+    ;
 
 simplifiedOverrideLeftOrRight
-   : LEFT_ANGLE_BRACKET simplifiedSecondary RIGHT_ANGLE_BRACKET
-   ;
+    : LEFT_ANGLE_BRACKET simplifiedSecondary RIGHT_ANGLE_BRACKET
+    ;
 
 simplifiedOverrideAnyDirection
-   : MINUS_SIGN simplifiedSecondary
-   ;
+    : MINUS_SIGN simplifiedSecondary
+    ;
 
 simplifiedSecondary
-   : simplifiedPrimary
-   | simplifiedNegation
-   ;
+    : simplifiedPrimary
+    | simplifiedNegation
+    ;
 
 simplifiedNegation
-   : EXCLAMATION_MARK simplifiedPrimary
-   ;
+    : EXCLAMATION_MARK simplifiedPrimary
+    ;
 
 simplifiedPrimary
-   : labelName
-   | LEFT_PAREN simplifiedContents RIGHT_PAREN
-   ;
+    : labelName
+    | LEFT_PAREN simplifiedContents RIGHT_PAREN
+    ;
 
 // 16.13 <where clause>
 
 whereClause
-   : WHERE searchCondition
-   ;
+    : WHERE searchCondition
+    ;
 
 // 16.14 <yield clause>
 
 yieldClause
-   : YIELD yieldItemList
-   ;
+    : YIELD yieldItemList
+    ;
 
 yieldItemList
-   : yieldItem (COMMA yieldItem)*
-   ;
+    : yieldItem (COMMA yieldItem)*
+    ;
 
 yieldItem
-   : (yieldItemName yieldItemAlias?)
-   ;
+    : (yieldItemName yieldItemAlias?)
+    ;
 
 yieldItemName
-   : fieldName
-   ;
+    : fieldName
+    ;
 
 yieldItemAlias
-   : AS bindingVariable
-   ;
+    : AS bindingVariable
+    ;
 
 // 16.15 <group by clasue>
 
 groupByClause
-   : GROUP BY groupingElementList
-   ;
+    : GROUP BY groupingElementList
+    ;
 
 groupingElementList
-   : groupingElement (COMMA groupingElement)*
-   | emptyGroupingSet
-   ;
+    : groupingElement (COMMA groupingElement)*
+    | emptyGroupingSet
+    ;
 
 groupingElement
-   : bindingVariableReference
-   ;
+    : bindingVariableReference
+    ;
 
 emptyGroupingSet
-   : LEFT_PAREN RIGHT_PAREN
-   ;
+    : LEFT_PAREN RIGHT_PAREN
+    ;
 
 // 16.16 <order by clasue>
 
 orderByClause
-   : ORDER BY sortSpecificationList
-   ;
+    : ORDER BY sortSpecificationList
+    ;
 
 // 16.17 <sort specification list>
 
 sortSpecificationList
-   : sortSpecification (COMMA sortSpecification)*
-   ;
+    : sortSpecification (COMMA sortSpecification)*
+    ;
 
 sortSpecification
-   : sortKey orderingSpecification? nullOrdering?
-   ;
+    : sortKey orderingSpecification? nullOrdering?
+    ;
 
 sortKey
-   : aggregatingValueExpression
-   ;
+    : aggregatingValueExpression
+    ;
 
 orderingSpecification
-   : ASC
-   | ASCENDING
-   | DESC
-   | DESCENDING
-   ;
+    : ASC
+    | ASCENDING
+    | DESC
+    | DESCENDING
+    ;
 
 nullOrdering
-   : NULLS FIRST
-   | NULLS LAST
-   ;
+    : NULLS FIRST
+    | NULLS LAST
+    ;
 
 // 16.18 <limit clause>
 
 limitClause
-   : LIMIT nonNegativeIntegerSpecification
-   ;
+    : LIMIT nonNegativeIntegerSpecification
+    ;
 
 // 16.19 <offset clause>
 
 offsetClause
-   : offsetSynonym nonNegativeIntegerSpecification
-   ;
+    : offsetSynonym nonNegativeIntegerSpecification
+    ;
 
 offsetSynonym
-   : OFFSET
-   | SKIP_RESERVED_WORD
-   ;
+    : OFFSET
+    | SKIP_RESERVED_WORD
+    ;
 
 // 17.1 <schema reference> and <catalog schema parent name>
 
 schemaReference
-   : absoluteCatalogSchemaReference
-   | relativeCatalogSchemaReference
-   | referenceParameterSpecification
-   ;
+    : absoluteCatalogSchemaReference
+    | relativeCatalogSchemaReference
+    | referenceParameterSpecification
+    ;
 
 absoluteCatalogSchemaReference
-   : SOLIDUS
-   | absoluteDirectoryPath schemaName
-   ;
+    : SOLIDUS
+    | absoluteDirectoryPath schemaName
+    ;
 
 catalogSchemaParentAndName
-   : absoluteDirectoryPath schemaName
-   ;
+    : absoluteDirectoryPath schemaName
+    ;
 
 relativeCatalogSchemaReference
-   : predefinedSchemaReference
-   | relativeDirectoryPath schemaName
-   ;
+    : predefinedSchemaReference
+    | relativeDirectoryPath schemaName
+    ;
 
 predefinedSchemaReference
-   : HOME_SCHEMA
-   | CURRENT_SCHEMA
-   | PERIOD
-   ;
+    : HOME_SCHEMA
+    | CURRENT_SCHEMA
+    | PERIOD
+    ;
 
 absoluteDirectoryPath
-   : SOLIDUS simpleDirectoryPath?
-   ;
+    : SOLIDUS simpleDirectoryPath?
+    ;
 
 relativeDirectoryPath
-   : DOUBLE_PERIOD ((SOLIDUS DOUBLE_PERIOD)+ SOLIDUS simpleDirectoryPath?)?
-   ;
+    : DOUBLE_PERIOD ((SOLIDUS DOUBLE_PERIOD)+ SOLIDUS simpleDirectoryPath?)?
+    ;
 
 simpleDirectoryPath
-   : (directoryName SOLIDUS)+
-   ;
+    : (directoryName SOLIDUS)+
+    ;
 
 // 17.2 <graph reference> and <catalog graph parent and name>
 
 graphReference
-   : catalogObjectParentReference graphName
-   | delimitedGraphName
-   | homeGraph
-   | referenceParameterSpecification
-   ;
+    : catalogObjectParentReference graphName
+    | delimitedGraphName
+    | homeGraph
+    | referenceParameterSpecification
+    ;
 
 catalogGraphParentAndName
-   : catalogObjectParentReference? graphName
-   ;
+    : catalogObjectParentReference? graphName
+    ;
 
 homeGraph
-   : HOME_PROPERTY_GRAPH
-   | HOME_GRAPH
-   ;
+    : HOME_PROPERTY_GRAPH
+    | HOME_GRAPH
+    ;
 
 // 17.3 <graph type reference> and <catalog graph type parent and name>
 
 graphTypeReference
-   : catalogGraphTypeParentAndName
-   | referenceParameterSpecification
-   ;
+    : catalogGraphTypeParentAndName
+    | referenceParameterSpecification
+    ;
 
 catalogGraphTypeParentAndName
-   : catalogObjectParentReference? graphTypeName
-   ;
+    : catalogObjectParentReference? graphTypeName
+    ;
 
 // 17.4 <binding table reference> and <catalog binding table parent name>
 
 bindingTableReference
-   : catalogObjectParentReference bindingTableName
-   | delimitedBindingTableName
-   | referenceParameterSpecification
-   ;
+    : catalogObjectParentReference bindingTableName
+    | delimitedBindingTableName
+    | referenceParameterSpecification
+    ;
 
 // 17.5 <procedure reference> and <catalog procedure parent and name>
 
 procedureReference
-   : catalogProcedureParentAndName
-   | referenceParameterSpecification
-   ;
+    : catalogProcedureParentAndName
+    | referenceParameterSpecification
+    ;
 
 catalogProcedureParentAndName
-   : catalogObjectParentReference? procedureName
-   ;
+    : catalogObjectParentReference? procedureName
+    ;
 
 // 17.6 <catalog object parent reference>
 
 catalogObjectParentReference
-   : schemaReference SOLIDUS? (objectName PERIOD)*
-   |  (objectName PERIOD)+
-   ;
+    : schemaReference SOLIDUS? (objectName PERIOD)*
+    |  (objectName PERIOD)+
+    ;
 
 // 17.7 <reference parameter specification>
 
 referenceParameterSpecification
-   : SUBSTITUTED_PARAMETER_REFERENCE
-   ;
+    : SUBSTITUTED_PARAMETER_REFERENCE
+    ;
 
 // 18.1 <nested graph type specification>
 
 nestedGraphTypeSpecification
-   : LEFT_BRACE graphTypeSpecificationBody RIGHT_BRACE
-   ;
+    : LEFT_BRACE graphTypeSpecificationBody RIGHT_BRACE
+    ;
 
 graphTypeSpecificationBody
-   : elementTypeList
-   ;
+    : elementTypeList
+    ;
 
 elementTypeList
-   : elementTypeSpecification (COMMA elementTypeSpecification)*
-   ;
+    : elementTypeSpecification (COMMA elementTypeSpecification)*
+    ;
 
 elementTypeSpecification
-   : nodeTypeSpecification
-   | edgeTypeSpecification
-   ;
+    : nodeTypeSpecification
+    | edgeTypeSpecification
+    ;
 
 // 18.2 <node type specification>
 
 nodeTypeSpecification
-   : nodeTypePattern
-   | nodeTypePhrase
-   ;
+    : nodeTypePattern
+    | nodeTypePhrase
+    ;
 
 nodeTypePattern
-   : (NODE_SYNONYM TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
-   ;
+    : (NODE_SYNONYM TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
+    ;
 
 nodeTypePhrase
-   : NODE_SYNONYM TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
-   ;
+    : NODE_SYNONYM TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
+    ;
 
 nodeTypePhraseFiller
-   : nodeTypeName nodeTypeFiller?
-   | nodeTypeFiller
-   ;
+    : nodeTypeName nodeTypeFiller?
+    | nodeTypeFiller
+    ;
 
 nodeTypeFiller
-   : nodeTypeKeyLabelSet nodeTypeImpliedContent?
-   | nodeTypeImpliedContent
-   ;
+    : nodeTypeKeyLabelSet nodeTypeImpliedContent?
+    | nodeTypeImpliedContent
+    ;
 
 localNodeTypeAlias
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 nodeTypeImpliedContent
-   : nodeTypeLabelSet
-   | nodeTypePropertyTypes
-   | nodeTypeLabelSet nodeTypePropertyTypes
-   ;
+    : nodeTypeLabelSet
+    | nodeTypePropertyTypes
+    | nodeTypeLabelSet nodeTypePropertyTypes
+    ;
 
 nodeTypeKeyLabelSet
-   : labelSetPhrase? IMPLIES
-   ;
+    : labelSetPhrase? IMPLIES
+    ;
 
 nodeTypeLabelSet
-   : labelSetPhrase
-   ;
+    : labelSetPhrase
+    ;
 
 nodeTypePropertyTypes
-   : propertyTypesSpecification
-   ;
+    : propertyTypesSpecification
+    ;
 
 // 18.3 <edge type specification>
 
 edgeTypeSpecification
-   : edgeTypePattern
-   | edgeTypePhrase
-   ;
+    : edgeTypePattern
+    | edgeTypePhrase
+    ;
 
 edgeTypePattern
-   : (edgeKind? EDGE_SYNONYM TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)
-   ;
+    : (edgeKind? EDGE_SYNONYM TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)
+    ;
 
 edgeTypePhrase
-   : edgeKind EDGE_SYNONYM TYPE? edgeTypePhraseFiller endpointPairPhrase
-   ;
+    : edgeKind EDGE_SYNONYM TYPE? edgeTypePhraseFiller endpointPairPhrase
+    ;
 
 edgeTypePhraseFiller
-   : edgeTypeName edgeTypeFiller?
-   | edgeTypeFiller
-   ;
+    : edgeTypeName edgeTypeFiller?
+    | edgeTypeFiller
+    ;
 
 edgeTypeFiller
-   : edgeTypeKeyLabelSet edgeTypeImpliedContent?
-   | edgeTypeImpliedContent
-   ;
+    : edgeTypeKeyLabelSet edgeTypeImpliedContent?
+    | edgeTypeImpliedContent
+    ;
 
 edgeTypeImpliedContent
-   : edgeTypeLabelSet
-   | edgeTypePropertyTypes
-   | edgeTypeLabelSet edgeTypePropertyTypes
-   ;
+    : edgeTypeLabelSet
+    | edgeTypePropertyTypes
+    | edgeTypeLabelSet edgeTypePropertyTypes
+    ;
 
 edgeTypeKeyLabelSet
-   : labelSetPhrase? IMPLIES
-   ;
+    : labelSetPhrase? IMPLIES
+    ;
 
 edgeTypeLabelSet
-   : labelSetPhrase
-   ;
+    : labelSetPhrase
+    ;
 
 edgeTypePropertyTypes
-   : propertyTypesSpecification
-   ;
+    : propertyTypesSpecification
+    ;
 
 edgeTypePatternDirected
-   : edgeTypePatternPointingRight
-   | edgeTypePatternPointingLeft
-   ;
+    : edgeTypePatternPointingRight
+    | edgeTypePatternPointingLeft
+    ;
 
 edgeTypePatternPointingRight
-   : sourceNodeTypeReference arcTypePointingRight destinationNodeTypeReference
-   ;
+    : sourceNodeTypeReference arcTypePointingRight destinationNodeTypeReference
+    ;
 
 edgeTypePatternPointingLeft
-   : destinationNodeTypeReference arcTypePointingLeft sourceNodeTypeReference
-   ;
+    : destinationNodeTypeReference arcTypePointingLeft sourceNodeTypeReference
+    ;
 
 edgeTypePatternUndirected
-   : sourceNodeTypeReference arcTypeUndirected destinationNodeTypeReference
-   ;
+    : sourceNodeTypeReference arcTypeUndirected destinationNodeTypeReference
+    ;
 
 arcTypePointingRight
-   : MINUS_LEFT_BRACKET edgeTypeFiller BRACKET_RIGHT_ARROW
-   ;
+    : MINUS_LEFT_BRACKET edgeTypeFiller BRACKET_RIGHT_ARROW
+    ;
 
 arcTypePointingLeft
-   : LEFT_ARROW_BRACKET edgeTypeFiller RIGHT_BRACKET_MINUS
-   ;
+    : LEFT_ARROW_BRACKET edgeTypeFiller RIGHT_BRACKET_MINUS
+    ;
 
 arcTypeUndirected
-   : TILDE_LEFT_BRACKET edgeTypeFiller RIGHT_BRACKET_TILDE
-   ;
+    : TILDE_LEFT_BRACKET edgeTypeFiller RIGHT_BRACKET_TILDE
+    ;
 
 sourceNodeTypeReference
-   : LEFT_PAREN sourceNodeTypeAlias RIGHT_PAREN
-   | LEFT_PAREN nodeTypeFiller? RIGHT_PAREN
-   ;
+    : LEFT_PAREN sourceNodeTypeAlias RIGHT_PAREN
+    | LEFT_PAREN nodeTypeFiller? RIGHT_PAREN
+    ;
 
 destinationNodeTypeReference
-   : LEFT_PAREN destinationNodeTypeAlias RIGHT_PAREN
-   | LEFT_PAREN nodeTypeFiller? RIGHT_PAREN
-   ;
+    : LEFT_PAREN destinationNodeTypeAlias RIGHT_PAREN
+    | LEFT_PAREN nodeTypeFiller? RIGHT_PAREN
+    ;
 
 edgeKind
-   : DIRECTED
-   | UNDIRECTED
-   ;
+    : DIRECTED
+    | UNDIRECTED
+    ;
 
 endpointPairPhrase
-   : CONNECTING endpointPair
-   ;
+    : CONNECTING endpointPair
+    ;
 
 endpointPair
-   : endpointPairDirected
-   | endpointPairUndirected
-   ;
+    : endpointPairDirected
+    | endpointPairUndirected
+    ;
 
 endpointPairDirected
-   : endpointPairPointingRight
-   | endpointPairPointingLeft
-   ;
+    : endpointPairPointingRight
+    | endpointPairPointingLeft
+    ;
 
 endpointPairPointingRight
-   : LEFT_PAREN sourceNodeTypeAlias connectorPointingRight destinationNodeTypeAlias RIGHT_PAREN
-   ;
+    : LEFT_PAREN sourceNodeTypeAlias connectorPointingRight destinationNodeTypeAlias RIGHT_PAREN
+    ;
 
 endpointPairPointingLeft
-   : LEFT_PAREN destinationNodeTypeAlias LEFT_ARROW sourceNodeTypeAlias RIGHT_PAREN
-   ;
+    : LEFT_PAREN destinationNodeTypeAlias LEFT_ARROW sourceNodeTypeAlias RIGHT_PAREN
+    ;
 
 endpointPairUndirected
-   : LEFT_PAREN sourceNodeTypeAlias connectorUndirected destinationNodeTypeAlias RIGHT_PAREN
-   ;
+    : LEFT_PAREN sourceNodeTypeAlias connectorUndirected destinationNodeTypeAlias RIGHT_PAREN
+    ;
 
 connectorPointingRight
-   : TO
-   | RIGHT_ARROW
-   ;
+    : TO
+    | RIGHT_ARROW
+    ;
 
 connectorUndirected
-   : TO
-   | TILDE
-   ;
+    : TO
+    | TILDE
+    ;
 
 sourceNodeTypeAlias
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 destinationNodeTypeAlias
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 // 18.4 <label set phrase> and <label set specification>
 
 labelSetPhrase
-   : LABEL labelName
-   | LABELS labelSetSpecification
-   | isOrColon labelSetSpecification
-   ;
+    : LABEL labelName
+    | LABELS labelSetSpecification
+    | isOrColon labelSetSpecification
+    ;
 
 labelSetSpecification
-   : labelName (AMPERSAND labelName)*
-   ;
+    : labelName (AMPERSAND labelName)*
+    ;
 
 // 18.5 <property types specification>
 
 propertyTypesSpecification
-   : LEFT_BRACE propertyTypeList? RIGHT_BRACE
-   ;
+    : LEFT_BRACE propertyTypeList? RIGHT_BRACE
+    ;
 
 propertyTypeList
-   : propertyType (COMMA propertyType)*
-   ;
+    : propertyType (COMMA propertyType)*
+    ;
 
 // 18.6 <property type>
 
 propertyType
-   : propertyName typed? propertyValueType
-   ;
+    : propertyName typed? propertyValueType
+    ;
 
 // 18.7 <property value type>
 
 propertyValueType
-   : valueType
-   ;
+    : valueType
+    ;
 
 // 18.8 <binding table type>
 
 bindingTableType
-   : BINDING? TABLE fieldTypesSpecification
-   ;
+    : BINDING? TABLE fieldTypesSpecification
+    ;
 
 // 18.9 <value type>
 
 valueType
-   : predefinedType                                                                                                         #predefinedTypeLabel
-   // <constructed value type>
-   | pathValueType                                                                                                          #pathValueTypeLabel
-   | listValueTypeName LEFT_ANGLE_BRACKET valueType RIGHT_ANGLE_BRACKET (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?    #listValueTypeAlt1
-   | valueType listValueTypeName (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?                                           #listValueTypeAlt2
-   | listValueTypeName (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?                                                     #listValueTypeAlt3
-   | recordType                                                                                                             #recordTypeLabel
-   // <dynamic union type>
-   | ANY VALUE? notNull?                                                                                                    #openDynamicUnionTypeLabel
-   | ANY? PROPERTY VALUE notNull?                                                                                           #dynamicPropertyValueTypeLabel
-   // <closed dynamic union type>
-   | ANY VALUE? LEFT_ANGLE_BRACKET valueType (VERTICAL_BAR valueType)* RIGHT_ANGLE_BRACKET                                  #closedDynamicUnionTypeAtl1
-   | valueType VERTICAL_BAR valueType                                                                                       #closedDynamicUnionTypeAtl2
-   ;
+    : predefinedType                                                                                                                              #predefinedTypeLabel
+    // <constructed value type>
+    | pathValueType                                                                                                                               #pathValueTypeLabel
+    | listValueTypeName LEFT_ANGLE_BRACKET valueType RIGHT_ANGLE_BRACKET (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?     #listValueTypeAlt1
+    | valueType listValueTypeName (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?                                                    #listValueTypeAlt2
+    | listValueTypeName (LEFT_BRACKET maxLength RIGHT_BRACKET)? notNull?                                                                #listValueTypeAlt3
+    | recordType                                                                                                                                   #recordTypeLabel
+    // <dynamic union type>
+    | ANY VALUE? notNull?                                                                                                                        #openDynamicUnionTypeLabel
+    | ANY? PROPERTY VALUE notNull?                                                                                                             #dynamicPropertyValueTypeLabel
+    // <closed dynamic union type>
+    | ANY VALUE? LEFT_ANGLE_BRACKET valueType (VERTICAL_BAR valueType)* RIGHT_ANGLE_BRACKET                                         #closedDynamicUnionTypeAtl1
+    | valueType VERTICAL_BAR valueType                                                                                                        #closedDynamicUnionTypeAtl2
+    ;
 
 typed
-   : DOUBLE_COLON
-   | TYPED
-   ;
+    : DOUBLE_COLON
+    | TYPED
+    ;
 
 predefinedType
-   : booleanType
-   | characterStringType
-   | byteStringType
-   | numericType
-   | temporalType
-   | referenceValueType
-   | immaterialValueType
-   ;
+    : booleanType
+    | characterStringType
+    | byteStringType
+    | numericType
+    | temporalType
+    | referenceValueType
+    | immaterialValueType
+    ;
 
 booleanType
-   : (BOOL | BOOLEAN) notNull?
-   ;
+    : (BOOL | BOOLEAN) notNull?
+    ;
 
 characterStringType
-   : STRING (LEFT_PAREN (minLength COMMA)? maxLength RIGHT_PAREN)? notNull?
-   | CHAR (LEFT_PAREN fixedLength RIGHT_PAREN)? notNull?
-   | VARCHAR (LEFT_PAREN maxLength RIGHT_PAREN)? notNull?
-   ;
+    : STRING (LEFT_PAREN (minLength COMMA)? maxLength RIGHT_PAREN)? notNull?
+    | CHAR (LEFT_PAREN fixedLength RIGHT_PAREN)? notNull?
+    | VARCHAR (LEFT_PAREN maxLength RIGHT_PAREN)? notNull?
+    ;
 
 byteStringType
-   : BYTES (LEFT_PAREN (minLength COMMA)? maxLength RIGHT_PAREN)? notNull?
-   | BINARY (LEFT_PAREN fixedLength RIGHT_PAREN)? notNull?
-   | VARBINARY (LEFT_PAREN maxLength RIGHT_PAREN)? notNull?
-   ;
+    : BYTES (LEFT_PAREN (minLength COMMA)? maxLength RIGHT_PAREN)? notNull?
+    | BINARY (LEFT_PAREN fixedLength RIGHT_PAREN)? notNull?
+    | VARBINARY (LEFT_PAREN maxLength RIGHT_PAREN)? notNull?
+    ;
 
 minLength
-   : unsignedInteger
-   ;
+    : unsignedInteger
+    ;
 
 maxLength
-   : unsignedInteger
-   ;
+    : unsignedInteger
+    ;
 
 fixedLength
-   : unsignedInteger
-   ;
+    : unsignedInteger
+    ;
 
 numericType
-   : exactNumericType
-   | approximateNumericType
-   ;
+    : exactNumericType
+    | approximateNumericType
+    ;
 
 exactNumericType
-   : binaryExactNumericType
-   | decimalExactNumericType
-   ;
+    : binaryExactNumericType
+    | decimalExactNumericType
+    ;
 
 binaryExactNumericType
-   : signedBinaryExactNumericType
-   | unsignedBinaryExactNumericType
-   ;
+    : signedBinaryExactNumericType
+    | unsignedBinaryExactNumericType
+    ;
 
 signedBinaryExactNumericType
-   : INT8 notNull?
-   | INT16 notNull?
-   | INT32 notNull?
-   | INT64 notNull?
-   | INT128 notNull?
-   | INT256 notNull?
-   | SMALLINT notNull?
-   | INT (LEFT_PAREN precision RIGHT_PAREN)? notNull?
-   | BIGINT notNull?
-   | SIGNED? verboseBinaryExactNumericType
-   ;
+    : INT8 notNull?
+    | INT16 notNull?
+    | INT32 notNull?
+    | INT64 notNull?
+    | INT128 notNull?
+    | INT256 notNull?
+    | SMALLINT notNull?
+    | INT (LEFT_PAREN precision RIGHT_PAREN)? notNull?
+    | BIGINT notNull?
+    | SIGNED? verboseBinaryExactNumericType
+    ;
 
 unsignedBinaryExactNumericType
-   : UINT8 notNull?
-   | UINT16 notNull?
-   | UINT32 notNull?
-   | UINT64 notNull?
-   | UINT128 notNull?
-   | UINT256 notNull?
-   | USMALLINT notNull?
-   | UINT (LEFT_PAREN precision RIGHT_PAREN)? notNull?
-   | UBIGINT notNull?
-   | UNSIGNED verboseBinaryExactNumericType
-   ;
+    : UINT8 notNull?
+    | UINT16 notNull?
+    | UINT32 notNull?
+    | UINT64 notNull?
+    | UINT128 notNull?
+    | UINT256 notNull?
+    | USMALLINT notNull?
+    | UINT (LEFT_PAREN precision RIGHT_PAREN)? notNull?
+    | UBIGINT notNull?
+    | UNSIGNED verboseBinaryExactNumericType
+    ;
 
 verboseBinaryExactNumericType
-   : INTEGER8 notNull?
-   | INTEGER16 notNull?
-   | INTEGER32 notNull?
-   | INTEGER64 notNull?
-   | INTEGER128 notNull?
-   | INTEGER256 notNull?
-   | SMALL INTEGER notNull?
-   | INTEGER (LEFT_PAREN precision RIGHT_PAREN)? notNull?
-   | BIG INTEGER notNull?
-   ;
+    : INTEGER8 notNull?
+    | INTEGER16 notNull?
+    | INTEGER32 notNull?
+    | INTEGER64 notNull?
+    | INTEGER128 notNull?
+    | INTEGER256 notNull?
+    | SMALL INTEGER notNull?
+    | INTEGER (LEFT_PAREN precision RIGHT_PAREN)? notNull?
+    | BIG INTEGER notNull?
+    ;
 
 decimalExactNumericType
-   : (DECIMAL | DEC) (LEFT_PAREN precision (COMMA scale)? RIGHT_PAREN notNull?)?
-   ;
+    : (DECIMAL | DEC) (LEFT_PAREN precision (COMMA scale)? RIGHT_PAREN notNull?)?
+    ;
 
 precision
-   : unsignedDecimalInteger
-   ;
+    : unsignedDecimalInteger
+    ;
 
 scale
-   : unsignedDecimalInteger
-   ;
+    : unsignedDecimalInteger
+    ;
 
 approximateNumericType
-   : FLOAT16 notNull?
-   | FLOAT32 notNull?
-   | FLOAT64 notNull?
-   | FLOAT128 notNull?
-   | FLOAT256 notNull?
-   | FLOAT (LEFT_PAREN precision (COMMA scale)? RIGHT_PAREN)? notNull?
-   | REAL notNull?
-   | DOUBLE PRECISION? notNull?
-   ;
+    : FLOAT16 notNull?
+    | FLOAT32 notNull?
+    | FLOAT64 notNull?
+    | FLOAT128 notNull?
+    | FLOAT256 notNull?
+    | FLOAT (LEFT_PAREN precision (COMMA scale)? RIGHT_PAREN)? notNull?
+    | REAL notNull?
+    | DOUBLE PRECISION? notNull?
+    ;
 
 temporalType
-   : temporalInstantType
-   | temporalDurationType
-   ;
+    : temporalInstantType
+    | temporalDurationType
+    ;
 
 temporalInstantType
-   : datetimeType
-   | localdatetimeType
-   | dateType
-   | timeType
-   | localtimeType
-   ;
+    : datetimeType
+    | localdatetimeType
+    | dateType
+    | timeType
+    | localtimeType
+    ;
 
 datetimeType
-   : ZONED DATETIME notNull?
-   | TIMESTAMP WITH TIME ZONE notNull?
-   ;
+    : ZONED DATETIME notNull?
+    | TIMESTAMP WITH TIME ZONE notNull?
+    ;
 
 localdatetimeType
-   : LOCAL DATETIME notNull?
-   | TIMESTAMP (WITHOUT TIME ZONE)? notNull?
-   ;
+    : LOCAL DATETIME notNull?
+    | TIMESTAMP (WITHOUT TIME ZONE)? notNull?
+    ;
 
 dateType
-   : DATE notNull?
-   ;
+    : DATE notNull?
+    ;
 
 timeType
-   : ZONED TIME notNull?
-   | TIME WITH TIME ZONE notNull?
-   ;
+    : ZONED TIME notNull?
+    | TIME WITH TIME ZONE notNull?
+    ;
 
 localtimeType
-   : LOCAL TIME notNull?
-   | TIME WITHOUT TIME ZONE notNull?
-   ;
+    : LOCAL TIME notNull?
+    | TIME WITHOUT TIME ZONE notNull?
+    ;
 
 temporalDurationType
-   : DURATION LEFT_PAREN temporalDurationQualifier RIGHT_PAREN notNull?
-   ;
+    : DURATION LEFT_PAREN temporalDurationQualifier RIGHT_PAREN notNull?
+    ;
 
 temporalDurationQualifier
-   : YEAR TO MONTH
-   | DAY TO SECOND
-   ;
+    : YEAR TO MONTH
+    | DAY TO SECOND
+    ;
 
 referenceValueType
-   : graphReferenceValueType
-   | bindingTableReferenceValueType
-   | nodeReferenceValueType
-   | edgeReferenceValueType
-   ;
+    : graphReferenceValueType
+    | bindingTableReferenceValueType
+    | nodeReferenceValueType
+    | edgeReferenceValueType
+    ;
 
 immaterialValueType
-   : nullType
-   | emptyType
-   ;
+    : nullType
+    | emptyType
+    ;
 
 nullType
-   : NULL
-   ;
+    : NULL
+    ;
 
 emptyType
-   : NULL notNull
-   | NOTHING
-   ;
+    : NULL notNull
+    | NOTHING
+    ;
 
 graphReferenceValueType
-   : openGraphReferenceValueType
-   | closedGraphReferenceValueType
-   ;
+    : openGraphReferenceValueType
+    | closedGraphReferenceValueType
+    ;
 
 closedGraphReferenceValueType
-   : PROPERTY? GRAPH nestedGraphTypeSpecification notNull?
-   ;
+    : PROPERTY? GRAPH nestedGraphTypeSpecification notNull?
+    ;
 
 openGraphReferenceValueType
-   : ANY PROPERTY? GRAPH notNull?
-   ;
+    : ANY PROPERTY? GRAPH notNull?
+    ;
 
 bindingTableReferenceValueType
-   : bindingTableType notNull?
-   ;
+    : bindingTableType notNull?
+    ;
 
 nodeReferenceValueType
-   : openNodeReferenceValueType
-   | closedNodeReferenceValueType
-   ;
+    : openNodeReferenceValueType
+    | closedNodeReferenceValueType
+    ;
 
 closedNodeReferenceValueType
-   : nodeTypeSpecification notNull?
-   ;
+    : nodeTypeSpecification notNull?
+    ;
 
 openNodeReferenceValueType
-   : ANY? NODE_SYNONYM notNull?
-   ;
+    : ANY? NODE_SYNONYM notNull?
+    ;
 
 edgeReferenceValueType
-   : openEdgeReferenceValueType
-   | closedEdgeReferenceValueType
-   ;
+    : openEdgeReferenceValueType
+    | closedEdgeReferenceValueType
+    ;
 
 closedEdgeReferenceValueType
-   : edgeTypeSpecification notNull?
-   ;
+    : edgeTypeSpecification notNull?
+    ;
 
 openEdgeReferenceValueType
-   : ANY? EDGE_SYNONYM notNull?
-   ;
+    : ANY? EDGE_SYNONYM notNull?
+    ;
 
 pathValueType
-   : PATH notNull?
-   ;
+    : PATH notNull?
+    ;
 
 listValueTypeName
-   : GROUP? listValueTypeNameSynonym
-   ;
+    : GROUP? listValueTypeNameSynonym
+    ;
 
 listValueTypeNameSynonym
-   : LIST
-   | ARRAY
-   ;
+    : LIST
+    | ARRAY
+    ;
 
 recordType
-   : ANY? RECORD notNull?
-   | RECORD? fieldTypesSpecification notNull?
-   ;
+    : ANY? RECORD notNull?
+    | RECORD? fieldTypesSpecification notNull?
+    ;
 
 fieldTypesSpecification
-   : LEFT_BRACE fieldTypeList? RIGHT_BRACE
-   ;
+    : LEFT_BRACE fieldTypeList? RIGHT_BRACE
+    ;
 
 fieldTypeList
-   : fieldType (COMMA fieldType)*
-   ;
+    : fieldType (COMMA fieldType)*
+    ;
 
 notNull
-   :  NOT NULL
-   ;
+    :  NOT NULL
+    ;
 
 // 18.10 <field type>
 
 fieldType
-   : fieldName typed? valueType
-   ;
+    : fieldName typed? valueType
+    ;
 
 // 19.1 <search condition>
 
 searchCondition
-   : booleanValueExpression
-   ;
+    : booleanValueExpression
+    ;
 
 // 19.2 <predicate>
 
 predicate
-   : comparisonPredicate
-   | existsPredicate
-   | nullPredicate
-   | normalizedPredicate
-   | valueTypePredicate
-   | directedPredicate
-   | labeledPredicate
-   | sourceDestinationPredicate
-   | all_differentPredicate
-   | samePredicate
-   | property_existsPredicate
-   ;
+    : comparisonPredicate
+    | existsPredicate
+    | nullPredicate
+    | normalizedPredicate
+    | valueTypePredicate
+    | directedPredicate
+    | labeledPredicate
+    | sourceDestinationPredicate
+    | all_differentPredicate
+    | samePredicate
+    | property_existsPredicate
+    ;
 
 // 19.3 <comparison predicate>
 
 comparisonPredicate
-   : comparisonPredicand comparisonPredicatePart2
-   ;
+    : comparisonPredicand comparisonPredicatePart2
+    ;
 
 comparisonPredicatePart2
-   : compOp comparisonPredicand
-   ;
+    : compOp comparisonPredicand
+    ;
 
 compOp
     : EQUALS_OPERATOR
@@ -2078,125 +2078,125 @@ compOp
     ;
 
 comparisonPredicand
-   : commonValueExpression
-   | booleanPredicand
-   ;
+    : commonValueExpression
+    | booleanPredicand
+    ;
 
 // 19.4 <exists predicate>
 
 existsPredicate
-   : EXISTS (LEFT_BRACE graphPattern RIGHT_BRACE | LEFT_PAREN graphPattern RIGHT_PAREN | LEFT_BRACE matchStatementBlock RIGHT_BRACE | LEFT_PAREN matchStatementBlock RIGHT_PAREN | nestedQuerySpecification)
-   ;
+    : EXISTS (LEFT_BRACE graphPattern RIGHT_BRACE | LEFT_PAREN graphPattern RIGHT_PAREN | LEFT_BRACE matchStatementBlock RIGHT_BRACE | LEFT_PAREN matchStatementBlock RIGHT_PAREN | nestedQuerySpecification)
+    ;
 
 // 19.5 <null predicate>
 
 nullPredicate
-   : valueExpressionPrimary nullPredicatePart2
-   ;
+    : valueExpressionPrimary nullPredicatePart2
+    ;
 
 nullPredicatePart2
-   : IS NOT? NULL
-   ;
+    : IS NOT? NULL
+    ;
 
 // 19.6 <value type predicate>
 
 valueTypePredicate
-   : valueExpressionPrimary valueTypePredicatePart2
-   ;
+    : valueExpressionPrimary valueTypePredicatePart2
+    ;
 
 valueTypePredicatePart2
-   : IS NOT? typed valueType
-   ;
+    : IS NOT? typed valueType
+    ;
 
 // 19.7 <normalized predicate>
 
 normalizedPredicate
-   : stringValueExpression normalizedPredicatePart2
-   ;
+    : stringValueExpression normalizedPredicatePart2
+    ;
 
 normalizedPredicatePart2
-   : IS NOT? normalForm? NORMALIZED
-   ;
+    : IS NOT? normalForm? NORMALIZED
+    ;
 
 // 19.8 <directed predicate>
 
 directedPredicate
-   : elementVariableReference directedPredicatePart2
-   ;
+    : elementVariableReference directedPredicatePart2
+    ;
 
 directedPredicatePart2
-   : IS NOT? DIRECTED
-   ;
+    : IS NOT? DIRECTED
+    ;
 
 // 19.9 <labled predicate>
 
 labeledPredicate
-   : elementVariableReference labeledPredicatePart2
-   ;
+    : elementVariableReference labeledPredicatePart2
+    ;
 
 labeledPredicatePart2
-   : isLabeledOrColon labelExpression
-   ;
+    : isLabeledOrColon labelExpression
+    ;
 
 isLabeledOrColon
-   : IS NOT? LABELED
-   | COLON
-   ;
+    : IS NOT? LABELED
+    | COLON
+    ;
 
 // 19.10 <source/destination predicate>
 
 sourceDestinationPredicate
-   : nodeReference sourcePredicatePart2
-   | nodeReference destinationPredicatePart2
-   ;
+    : nodeReference sourcePredicatePart2
+    | nodeReference destinationPredicatePart2
+    ;
 
 nodeReference
-   : elementVariableReference
-   ;
+    : elementVariableReference
+    ;
 
 sourcePredicatePart2
-   : IS NOT? SOURCE OF edgeReference
-   ;
+    : IS NOT? SOURCE OF edgeReference
+    ;
 
 destinationPredicatePart2
-   : IS NOT? DESTINATION OF edgeReference
-   ;
+    : IS NOT? DESTINATION OF edgeReference
+    ;
 
 edgeReference
-   : elementVariableReference
-   ;
+    : elementVariableReference
+    ;
 
 // 19.11 <all different predicate>
 
 all_differentPredicate
-   : ALL_DIFFERENT LEFT_PAREN elementVariableReference COMMA elementVariableReference (COMMA elementVariableReference)* RIGHT_PAREN
-   ;
+    : ALL_DIFFERENT LEFT_PAREN elementVariableReference COMMA elementVariableReference (COMMA elementVariableReference)* RIGHT_PAREN
+    ;
 
 // 19.12 <same predicate>
 
 samePredicate
-   : SAME LEFT_PAREN elementVariableReference COMMA elementVariableReference (COMMA elementVariableReference)* RIGHT_PAREN
-   ;
+    : SAME LEFT_PAREN elementVariableReference COMMA elementVariableReference (COMMA elementVariableReference)* RIGHT_PAREN
+    ;
 
 // 19.13 <property exists predicate>
 
 property_existsPredicate
-   : PROPERTY_EXISTS LEFT_PAREN elementVariableReference COMMA propertyName RIGHT_PAREN
-   ;
+    : PROPERTY_EXISTS LEFT_PAREN elementVariableReference COMMA propertyName RIGHT_PAREN
+    ;
 
 // 20.1 <value expression>
 
 valueExpression
-   : commonValueExpression
-   | booleanValueExpression
-   ;
+    : commonValueExpression
+    | booleanValueExpression
+    ;
 
 commonValueExpression
-   : numericDatetimeDurationValueExpression
-   | listStringOrPathValueExpression
-   | recordExpression
-   | referenceValueExpression
-   ;
+    : numericDatetimeDurationValueExpression
+    | listStringOrPathValueExpression
+    | recordExpression
+    | referenceValueExpression
+    ;
 
 // Character strings, byte strings, lists and paths all support the same concatenation
 // operator. So here we define a rule that deals with all of them. Of course the types
@@ -2237,283 +2237,283 @@ numericDatetimeDurationValueExpression
 // End numeric, datetime and duration.
 
 referenceValueExpression
-   : graphReferenceValueExpression
-   | bindingTableReferenceValueExpression
-   | nodeReferenceValueExpression
-   | edgeReferenceValueExpression
-   ;
+    : graphReferenceValueExpression
+    | bindingTableReferenceValueExpression
+    | nodeReferenceValueExpression
+    | edgeReferenceValueExpression
+    ;
 
 graphReferenceValueExpression
-   : PROPERTY? GRAPH graphExpression
-   | valueExpressionPrimary
-   ;
+    : PROPERTY? GRAPH graphExpression
+    | valueExpressionPrimary
+    ;
 
 bindingTableReferenceValueExpression
-   : BINDING? TABLE bindingTableExpression
-   | valueExpressionPrimary
-   ;
+    : BINDING? TABLE bindingTableExpression
+    | valueExpressionPrimary
+    ;
 
 nodeReferenceValueExpression
-   : valueExpressionPrimary
-   ;
+    : valueExpressionPrimary
+    ;
 
 edgeReferenceValueExpression
-   : valueExpressionPrimary
-   ;
+    : valueExpressionPrimary
+    ;
 
 recordExpression
-   : valueExpressionPrimary
-   ;
+    : valueExpressionPrimary
+    ;
 
 aggregatingValueExpression
-   : valueExpression
-   ;
+    : valueExpression
+    ;
 
 // 20.2 <value expression primary>
 
 valueExpressionPrimary
-   : parenthesizedValueExpression
-   | aggregateFunction
-   | unsignedValueSpecification
-   | listValueConstructor
-   | recordConstructor
-   | pathValueConstructor
-   | valueExpressionPrimary PERIOD propertyName     // <propertyReference
-   | valueQueryExpression
-   | caseExpression
-   | castSpecification
-   | element_idFunction
-   | letValueExpression
-   | bindingVariableReference
-   ;
+    : parenthesizedValueExpression
+    | aggregateFunction
+    | unsignedValueSpecification
+    | listValueConstructor
+    | recordConstructor
+    | pathValueConstructor
+    | valueExpressionPrimary PERIOD propertyName      // <propertyReference
+    | valueQueryExpression
+    | caseExpression
+    | castSpecification
+    | element_idFunction
+    | letValueExpression
+    | bindingVariableReference
+    ;
 
 parenthesizedValueExpression
-   : LEFT_PAREN valueExpression RIGHT_PAREN
-   ;
+    : LEFT_PAREN valueExpression RIGHT_PAREN
+    ;
 
 nonParenthesizedValueExpressionPrimary
-   : nonParenthesizedValueExpressionPrimarySpecialCase
-   | bindingVariableReference
-   ;
+    : nonParenthesizedValueExpressionPrimarySpecialCase
+    | bindingVariableReference
+    ;
 
 nonParenthesizedValueExpressionPrimarySpecialCase
-   : aggregateFunction
-   | unsignedValueSpecification
-   | listValueConstructor
-   | recordConstructor
-   | pathValueConstructor
-   | valueExpressionPrimary PERIOD propertyName     // <property reference>
-   | valueQueryExpression
-   | caseExpression
-   | castSpecification
-   | element_idFunction
-   | letValueExpression
-   ;
+    : aggregateFunction
+    | unsignedValueSpecification
+    | listValueConstructor
+    | recordConstructor
+    | pathValueConstructor
+    | valueExpressionPrimary PERIOD propertyName      // <property reference>
+    | valueQueryExpression
+    | caseExpression
+    | castSpecification
+    | element_idFunction
+    | letValueExpression
+    ;
 
 // 20.3 <value specification>
 
 unsignedValueSpecification
-   : unsignedLiteral
-   | generalValueSpecification
-   ;
+    : unsignedLiteral
+    | generalValueSpecification
+    ;
 
 nonNegativeIntegerSpecification
-   : unsignedInteger
-   | dynamicParameterSpecification
-   ;
+    : unsignedInteger
+    | dynamicParameterSpecification
+    ;
 
 generalValueSpecification
-   : dynamicParameterSpecification
-   | SESSION_USER
-   ;
+    : dynamicParameterSpecification
+    | SESSION_USER
+    ;
 
 // 20.4 <dynamic parameter specification>
 
 dynamicParameterSpecification
-   : GENERAL_PARAMETER_REFERENCE
-   ;
+    : GENERAL_PARAMETER_REFERENCE
+    ;
 
 // 20.5 <let value expression>
 
 letValueExpression
-   : LET letVariableDefinitionList IN valueExpression END
-   ;
+    : LET letVariableDefinitionList IN valueExpression END
+    ;
 
 // 20.6 <value query expression>
 
 valueQueryExpression
-   : VALUE nestedQuerySpecification
-   ;
+    : VALUE nestedQuerySpecification
+    ;
 
 // 20.7 <case expression>
 
 caseExpression
-   : caseAbbreviation
-   | caseSpecification
-   ;
+    : caseAbbreviation
+    | caseSpecification
+    ;
 
 caseAbbreviation
-   : NULLIF LEFT_PAREN valueExpression COMMA valueExpression RIGHT_PAREN
-   | COALESCE LEFT_PAREN valueExpression (COMMA valueExpression)+ RIGHT_PAREN
-   ;
+    : NULLIF LEFT_PAREN valueExpression COMMA valueExpression RIGHT_PAREN
+    | COALESCE LEFT_PAREN valueExpression (COMMA valueExpression)+ RIGHT_PAREN
+    ;
 
 caseSpecification
-   : simpleCase
-   | searchedCase
-   ;
+    : simpleCase
+    | searchedCase
+    ;
 
 simpleCase
-   : CASE caseOperand simpleWhenClause+ elseClause? END
-   ;
+    : CASE caseOperand simpleWhenClause+ elseClause? END
+    ;
 
 searchedCase
-   : CASE searchedWhenClause+ elseClause? END
-   ;
+    : CASE searchedWhenClause+ elseClause? END
+    ;
 
 simpleWhenClause
-   : WHEN whenOperandList THEN result
-   ;
+    : WHEN whenOperandList THEN result
+    ;
 
 searchedWhenClause
-   : WHEN searchCondition THEN result
-   ;
+    : WHEN searchCondition THEN result
+    ;
 
 elseClause
-   : ELSE result
-   ;
+    : ELSE result
+    ;
 
 caseOperand
-   : nonParenthesizedValueExpressionPrimary
-   | elementVariableReference
-   ;
+    : nonParenthesizedValueExpressionPrimary
+    | elementVariableReference
+    ;
 
 whenOperandList
-   : whenOperand (COMMA whenOperand)*
-   ;
+    : whenOperand (COMMA whenOperand)*
+    ;
 
 whenOperand
-   : nonParenthesizedValueExpressionPrimary
-   | comparisonPredicatePart2
-   | nullPredicatePart2
-   | valueTypePredicatePart2
-   | normalizedPredicatePart2
-   | directedPredicatePart2
-   | labeledPredicatePart2
-   | sourcePredicatePart2
-   | destinationPredicatePart2
-   ;
+    : nonParenthesizedValueExpressionPrimary
+    | comparisonPredicatePart2
+    | nullPredicatePart2
+    | valueTypePredicatePart2
+    | normalizedPredicatePart2
+    | directedPredicatePart2
+    | labeledPredicatePart2
+    | sourcePredicatePart2
+    | destinationPredicatePart2
+    ;
 
 result
-   : resultExpression
-   | nullLiteral
-   ;
+    : resultExpression
+    | nullLiteral
+    ;
 
 resultExpression
-   : valueExpression
-   ;
+    : valueExpression
+    ;
 
 // 20.8 <cast specification>
 
 castSpecification
-   : CAST LEFT_PAREN castOperand AS castTarget RIGHT_PAREN
-   ;
+    : CAST LEFT_PAREN castOperand AS castTarget RIGHT_PAREN
+    ;
 
 castOperand
-   : valueExpression
-   | nullLiteral
-   ;
+    : valueExpression
+    | nullLiteral
+    ;
 
 castTarget
-   : valueType
-   ;
+    : valueType
+    ;
 
 // 20.9 <aggregate function>
 
 aggregateFunction
-   : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
-   | generalSetFunction
-   | binarySetFunction
-   ;
+    : COUNT LEFT_PAREN ASTERISK RIGHT_PAREN
+    | generalSetFunction
+    | binarySetFunction
+    ;
 
 generalSetFunction
-   : generalSetFunctionType LEFT_PAREN setQuantifier? valueExpression RIGHT_PAREN
-   ;
+    : generalSetFunctionType LEFT_PAREN setQuantifier? valueExpression RIGHT_PAREN
+    ;
 
 binarySetFunction
-   : binarySetFunctionType LEFT_PAREN dependentValueExpression COMMA independentValueExpression RIGHT_PAREN
-   ;
+    : binarySetFunctionType LEFT_PAREN dependentValueExpression COMMA independentValueExpression RIGHT_PAREN
+    ;
 
 generalSetFunctionType
-   : AVG
-   | COUNT
-   | MAX
-   | MIN
-   | SUM
-   | COLLECT_LIST
-   | STDDEV_SAMP
-   | STDDEV_POP
-   ;
+    : AVG
+    | COUNT
+    | MAX
+    | MIN
+    | SUM
+    | COLLECT_LIST
+    | STDDEV_SAMP
+    | STDDEV_POP
+    ;
 
 setQuantifier
-   : DISTINCT
-   | ALL
-   ;
+    : DISTINCT
+    | ALL
+    ;
 
 binarySetFunctionType
-   : PERCENTILE_CONT
-   | PERCENTILE_DISC
-   ;
+    : PERCENTILE_CONT
+    | PERCENTILE_DISC
+    ;
 
 dependentValueExpression
-   : setQuantifier? numericValueExpression
-   ;
+    : setQuantifier? numericValueExpression
+    ;
 
 independentValueExpression
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 // 20.10 <element_id function>
 
 element_idFunction
-   : ELEMENT_ID LEFT_PAREN elementVariableReference RIGHT_PAREN
-   ;
+    : ELEMENT_ID LEFT_PAREN elementVariableReference RIGHT_PAREN
+    ;
 
 // 20.11 <property reference>
 
 // 20.12 <binding variable reference>
 
 bindingVariableReference
-   : bindingVariable
-   ;
+    : bindingVariable
+    ;
 
 // The path value expression was combined with list and string value expressions.
 // See listStringOrPathValueExpression.
 
 pathValueExpression
-   : commonValueExpression
-   ;
+    : commonValueExpression
+    ;
 
 // 20.14 <path value constructor>
 
 pathValueConstructor
-   : pathValueConstructorByEnumeration
-   ;
+    : pathValueConstructorByEnumeration
+    ;
 
 pathValueConstructorByEnumeration
-   : PATH LEFT_BRACKET pathElementList RIGHT_BRACKET
-   ;
+    : PATH LEFT_BRACKET pathElementList RIGHT_BRACKET
+    ;
 
 pathElementList
-   : pathElementListStart pathElementListStep*
-   ;
+    : pathElementListStart pathElementListStep*
+    ;
 
 pathElementListStart
-   : nodeReferenceValueExpression
-   ;
+    : nodeReferenceValueExpression
+    ;
 
 pathElementListStep
-   : COMMA edgeReferenceValueExpression COMMA nodeReferenceValueExpression
-   ;
+    : COMMA edgeReferenceValueExpression COMMA nodeReferenceValueExpression
+    ;
 
 // 20.15 <list value expression>
 
@@ -2521,100 +2521,100 @@ pathElementListStep
 // See listStringOrPathValueExpression.
 
 listValueExpression
-   : commonValueExpression
-   ;
+    : commonValueExpression
+    ;
 
 // 20.16 <list value function>
 
 listValueFunction
-   : trimListFunction
-   | elementsFunction
-   ;
+    : trimListFunction
+    | elementsFunction
+    ;
 
 trimListFunction
-   : TRIM LEFT_PAREN listValueExpression COMMA numericValueExpression RIGHT_PAREN
-   ;
+    : TRIM LEFT_PAREN listValueExpression COMMA numericValueExpression RIGHT_PAREN
+    ;
 
 elementsFunction
-   : ELEMENTS LEFT_PAREN pathValueExpression RIGHT_PAREN
-   ;
+    : ELEMENTS LEFT_PAREN pathValueExpression RIGHT_PAREN
+    ;
 
 // 20.17 <list value constructor>
 
 listValueConstructor
-   : listValueConstructorByEnumeration
-   ;
+    : listValueConstructorByEnumeration
+    ;
 
 listValueConstructorByEnumeration
-   : listValueTypeName? LEFT_BRACKET listElementList? RIGHT_BRACKET
-   ;
+    : listValueTypeName? LEFT_BRACKET listElementList? RIGHT_BRACKET
+    ;
 
 listElementList
-   : listElement (COMMA listElement)*
-   ;
+    : listElement (COMMA listElement)*
+    ;
 
 listElement
-   : valueExpression
-   ;
+    : valueExpression
+    ;
 
 // 20.18 <record constructor>
 
 recordConstructor
-   : RECORD? fieldsSpecification
-   ;
+    : RECORD? fieldsSpecification
+    ;
 
 fieldsSpecification
-   : LEFT_BRACE fieldList? RIGHT_BRACE
-   ;
+    : LEFT_BRACE fieldList? RIGHT_BRACE
+    ;
 
 fieldList
-   : field (COMMA field)*
-   ;
+    : field (COMMA field)*
+    ;
 
 // 20.19 <field>
 
 field
-   : fieldName COLON valueExpression
-   ;
+    : fieldName COLON valueExpression
+    ;
 
 // 20.20 <boolean value expression>
 
 booleanValueExpression
-   : booleanTerm
-   | booleanValueExpression OR booleanTerm
-   | booleanValueExpression XOR booleanTerm
-   ;
+    : booleanTerm
+    | booleanValueExpression OR booleanTerm
+    | booleanValueExpression XOR booleanTerm
+    ;
 
 booleanTerm
-   : booleanFactor
-   | booleanTerm AND booleanFactor
-   ;
+    : booleanFactor
+    | booleanTerm AND booleanFactor
+    ;
 
 booleanFactor
-   : NOT? booleanTest
-   ;
+    : NOT? booleanTest
+    ;
 
 booleanTest
-   : booleanPrimary (IS NOT? truthValue)?
-   ;
+    : booleanPrimary (IS NOT? truthValue)?
+    ;
 
 truthValue
-   : BOOLEAN_LITERAL
-   ;
+    : BOOLEAN_LITERAL
+    ;
 
 booleanPrimary
-   : predicate
-   | booleanPredicand
-   ;
+    : predicate
+    | booleanPredicand
+    ;
 
 booleanPredicand
-   : parenthesizedBooleanValueExpression
-   | nonParenthesizedValueExpressionPrimary
-   ;
+    : parenthesizedBooleanValueExpression
+    | nonParenthesizedValueExpressionPrimary
+    ;
 
 parenthesizedBooleanValueExpression
-   : LEFT_PAREN booleanValueExpression RIGHT_PAREN
-   ;
+    : LEFT_PAREN booleanValueExpression RIGHT_PAREN
+    ;
 
 // 20.21 <numeric value expression>
 
@@ -2631,133 +2631,133 @@ numericValueExpression
 // 20.22 <numeric value function>
 
 numericValueFunction
-   : lengthExpression
-   | cardinalityExpression
-   | absoluteValueExpression
-   | modulusExpression
-   | trigonometricFunction
-   | generalLogarithmFunction
-   | commonLogarithm
-   | naturalLogarithm
-   | exponentialFunction
-   | powerFunction
-   | squareRoot
-   | floorFunction
-   | ceilingFunction
-   ;
+    : lengthExpression
+    | cardinalityExpression
+    | absoluteValueExpression
+    | modulusExpression
+    | trigonometricFunction
+    | generalLogarithmFunction
+    | commonLogarithm
+    | naturalLogarithm
+    | exponentialFunction
+    | powerFunction
+    | squareRoot
+    | floorFunction
+    | ceilingFunction
+    ;
 
 lengthExpression
-   : charLengthExpression
-   | byteLengthExpression
-   | pathLengthExpression
-   ;
+    : charLengthExpression
+    | byteLengthExpression
+    | pathLengthExpression
+    ;
 
 cardinalityExpression
-   : CARDINALITY LEFT_PAREN cardinalityExpressionArgument RIGHT_PAREN
-   | SIZE LEFT_PAREN listValueExpression RIGHT_PAREN
-   ;
+    : CARDINALITY LEFT_PAREN cardinalityExpressionArgument RIGHT_PAREN
+    | SIZE LEFT_PAREN listValueExpression RIGHT_PAREN
+    ;
 
 cardinalityExpressionArgument
-   : bindingTableReferenceValueExpression
-   | pathValueExpression
-   | listValueExpression
-   | recordExpression
-   ;
+    : bindingTableReferenceValueExpression
+    | pathValueExpression
+    | listValueExpression
+    | recordExpression
+    ;
 
 charLengthExpression
-   : (CHAR_LENGTH | CHARACTER_LENGTH) LEFT_PAREN characterStringValueExpression RIGHT_PAREN
-   ;
+    : (CHAR_LENGTH | CHARACTER_LENGTH) LEFT_PAREN characterStringValueExpression RIGHT_PAREN
+    ;
 
 byteLengthExpression
-   : (BYTE_LENGTH | OCTET_LENGTH) LEFT_PAREN byteStringValueExpression RIGHT_PAREN
-   ;
+    : (BYTE_LENGTH | OCTET_LENGTH) LEFT_PAREN byteStringValueExpression RIGHT_PAREN
+    ;
 
 pathLengthExpression
-   : PATH_LENGTH LEFT_PAREN pathValueExpression RIGHT_PAREN
-   ;
+    : PATH_LENGTH LEFT_PAREN pathValueExpression RIGHT_PAREN
+    ;
 
 absoluteValueExpression
-   : ABS LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : ABS LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 modulusExpression
-   : MOD LEFT_PAREN numericValueExpressionDividend COMMA numericValueExpressionDivisor RIGHT_PAREN
-   ;
+    : MOD LEFT_PAREN numericValueExpressionDividend COMMA numericValueExpressionDivisor RIGHT_PAREN
+    ;
 
 numericValueExpressionDividend
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 numericValueExpressionDivisor
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 trigonometricFunction
-   : trigonometricFunctionName LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : trigonometricFunctionName LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 trigonometricFunctionName
-   : SIN
-   | COS
-   | TAN
-   | COT
-   | SINH
-   | COSH
-   | TANH
-   | ASIN
-   | ACOS
-   | ATAN
-   | DEGREES
-   | RADIANS
-   ;
+    : SIN
+    | COS
+    | TAN
+    | COT
+    | SINH
+    | COSH
+    | TANH
+    | ASIN
+    | ACOS
+    | ATAN
+    | DEGREES
+    | RADIANS
+    ;
 
 generalLogarithmFunction
-   : LOG LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
-   ;
+    : LOG LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
+    ;
 
 generalLogarithmBase
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 generalLogarithmArgument
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 commonLogarithm
-   : LOG10 LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : LOG10 LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 naturalLogarithm
-   : LN LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : LN LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 exponentialFunction
-   : EXP LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : EXP LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 powerFunction
-   : POWER LEFT_PAREN numericValueExpressionBase COMMA numericValueExpressionExponent RIGHT_PAREN
-   ;
+    : POWER LEFT_PAREN numericValueExpressionBase COMMA numericValueExpressionExponent RIGHT_PAREN
+    ;
 
 numericValueExpressionBase
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 numericValueExpressionExponent
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 squareRoot
-   : SQRT LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : SQRT LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 floorFunction
-   : FLOOR LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : FLOOR LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 ceilingFunction
-   : (CEIL | CEILING) LEFT_PAREN numericValueExpression RIGHT_PAREN
-   ;
+    : (CEIL | CEILING) LEFT_PAREN numericValueExpression RIGHT_PAREN
+    ;
 
 // 20.23 <string value expression>
 
@@ -2779,148 +2779,148 @@ byteStringValueExpression
 // 20.24 <string value function>
 
 characterStringFunction
-   : substringFunction
-   | fold
-   | trimFunction
-   | normalizeFunction
-   ;
+    : substringFunction
+    | fold
+    | trimFunction
+    | normalizeFunction
+    ;
 
 substringFunction
-   : (LEFT | RIGHT) LEFT_PAREN characterStringValueExpression COMMA stringLength RIGHT_PAREN
-   ;
+    : (LEFT | RIGHT) LEFT_PAREN characterStringValueExpression COMMA stringLength RIGHT_PAREN
+    ;
 
 fold
-   : (UPPER | LOWER) LEFT_PAREN characterStringValueExpression RIGHT_PAREN
-   ;
+    : (UPPER | LOWER) LEFT_PAREN characterStringValueExpression RIGHT_PAREN
+    ;
 
 trimFunction
-   : singleCharacterTrimFunction
-   | multiCharacterTrimFunction
-   ;
+    : singleCharacterTrimFunction
+    | multiCharacterTrimFunction
+    ;
 
 singleCharacterTrimFunction
-   : TRIM LEFT_PAREN trimOperands RIGHT_PAREN
-   ;
+    : TRIM LEFT_PAREN trimOperands RIGHT_PAREN
+    ;
 
 multiCharacterTrimFunction
-   : (BTRIM | LTRIM | RTRIM) LEFT_PAREN trimSource (COMMA trimCharacterString)? RIGHT_PAREN
-   ;
+    : (BTRIM | LTRIM | RTRIM) LEFT_PAREN trimSource (COMMA trimCharacterString)? RIGHT_PAREN
+    ;
 
 trimOperands
-   : (trimSpecification? trimCharacterString? FROM)? trimSource
-   ;
+    : (trimSpecification? trimCharacterString? FROM)? trimSource
+    ;
 
 trimSource
-   : characterStringValueExpression
-   ;
+    : characterStringValueExpression
+    ;
 
 trimSpecification
-   : LEADING
-   | TRAILING
-   | BOTH
-   ;
+    : LEADING
+    | TRAILING
+    | BOTH
+    ;
 
 trimCharacterString
-   : characterStringValueExpression
-   ;
+    : characterStringValueExpression
+    ;
 
 normalizeFunction
-   : NORMALIZE LEFT_PAREN characterStringValueExpression (COMMA normalForm)? RIGHT_PAREN
-   ;
+    : NORMALIZE LEFT_PAREN characterStringValueExpression (COMMA normalForm)? RIGHT_PAREN
+    ;
 
 normalForm
-   : NFC
-   | NFD
-   | NFKC
-   | NFKD
-   ;
+    : NFC
+    | NFD
+    | NFKC
+    | NFKD
+    ;
 
 stringLength
-   : numericValueExpression
-   ;
+    : numericValueExpression
+    ;
 
 // 20.25 <byte string function>
 
 byteStringFunction
-   : byteStringSubstringFunction
-   | byteStringTrimFunction
-   ;
+    : byteStringSubstringFunction
+    | byteStringTrimFunction
+    ;
 
 byteStringSubstringFunction
-   : (LEFT | RIGHT) LEFT_PAREN byteStringValueExpression COMMA stringLength RIGHT_PAREN
-   ;
+    : (LEFT | RIGHT) LEFT_PAREN byteStringValueExpression COMMA stringLength RIGHT_PAREN
+    ;
 
 byteStringTrimFunction
-   : TRIM LEFT_PAREN byteStringTrimOperands RIGHT_PAREN
-   ;
+    : TRIM LEFT_PAREN byteStringTrimOperands RIGHT_PAREN
+    ;
 
 byteStringTrimOperands
-   : (trimSpecification? trimByteString? FROM)? byteStringTrimSource
-   ;
+    : (trimSpecification? trimByteString? FROM)? byteStringTrimSource
+    ;
 
 byteStringTrimSource
-   : byteStringValueExpression
-   ;
+    : byteStringValueExpression
+    ;
 
 trimByteString
-   : byteStringValueExpression
-   ;
+    : byteStringValueExpression
+    ;
 
 // 20.26 <datetime value expression>
 
 // The implementation should enforce that the data type is a datetime value.
 datetimeValueExpression
-    : commonValueExpression
-    ;
+     : commonValueExpression
+     ;
 
 // 20.27 <datetime value function>
 
 datetimeValueFunction
-   : dateFunction
-   | timeFunction
-   | datetimeFunction
-   | localtimeFunction
-   | localdatetimeFunction
-   ;
+    : dateFunction
+    | timeFunction
+    | datetimeFunction
+    | localtimeFunction
+    | localdatetimeFunction
+    ;
 
 dateFunction
-   : CURRENT_DATE
-   | DATE LEFT_PAREN dateFunctionParameters? RIGHT_PAREN
-   ;
+    : CURRENT_DATE
+    | DATE LEFT_PAREN dateFunctionParameters? RIGHT_PAREN
+    ;
 
 timeFunction
-   : CURRENT_TIME
-   | ZONED_TIME LEFT_PAREN timeFunctionParameters? RIGHT_PAREN
-   ;
+    : CURRENT_TIME
+    | ZONED_TIME LEFT_PAREN timeFunctionParameters? RIGHT_PAREN
+    ;
 
 localtimeFunction
-   : LOCAL_TIME (LEFT_PAREN timeFunctionParameters? RIGHT_PAREN)?
-   ;
+    : LOCAL_TIME (LEFT_PAREN timeFunctionParameters? RIGHT_PAREN)?
+    ;
 
 datetimeFunction
-   : CURRENT_TIMESTAMP
-   | ZONED_DATETIME LEFT_PAREN datetimeFunctionParameters? RIGHT_PAREN
-   ;
+    : CURRENT_TIMESTAMP
+    | ZONED_DATETIME LEFT_PAREN datetimeFunctionParameters? RIGHT_PAREN
+    ;
 
 localdatetimeFunction
-   : LOCAL_TIMESTAMP
-   | LOCAL_DATETIME LEFT_PAREN datetimeFunctionParameters? RIGHT_PAREN
-   ;
+    : LOCAL_TIMESTAMP
+    | LOCAL_DATETIME LEFT_PAREN datetimeFunctionParameters? RIGHT_PAREN
+    ;
 
 dateFunctionParameters
-   : dateString
-   | recordConstructor
-   ;
+    : dateString
+    | recordConstructor
+    ;
 
 timeFunctionParameters
-   : timeString
-   | recordConstructor
-   ;
+    : timeString
+    | recordConstructor
+    ;
 
 datetimeFunctionParameters
-   : datetimeString
-   | recordConstructor
-   ;
+    : datetimeString
+    | recordConstructor
+    ;
 
 // 20.28 <duration value expression>
 
@@ -2930,63 +2930,63 @@ durationValueExpression
     ;
 
 datetimeSubtraction
-   : DURATION_BETWEEN LEFT_PAREN datetimeSubtractionParameters RIGHT_PAREN temporalDurationQualifier?
-   ;
+    : DURATION_BETWEEN LEFT_PAREN datetimeSubtractionParameters RIGHT_PAREN temporalDurationQualifier?
+    ;
 
 datetimeSubtractionParameters
-   : datetimeValueExpression1 COMMA datetimeValueExpression2
-   ;
+    : datetimeValueExpression1 COMMA datetimeValueExpression2
+    ;
 
 datetimeValueExpression1
-   : datetimeValueExpression
-   ;
+    : datetimeValueExpression
+    ;
 
 datetimeValueExpression2
-   : datetimeValueExpression
-   ;
+    : datetimeValueExpression
+    ;
 
 // 20.29 <duration value function>
 
 durationValueFunction
-   : durationFunction
-   | durationAbsoluteValueFunction
-   ;
+    : durationFunction
+    | durationAbsoluteValueFunction
+    ;
 
 durationFunction
-   : DURATION LEFT_PAREN durationFunctionParameters RIGHT_PAREN
-   ;
+    : DURATION LEFT_PAREN durationFunctionParameters RIGHT_PAREN
+    ;
 
 durationFunctionParameters
-   : durationString
-   | recordConstructor
-   ;
+    : durationString
+    | recordConstructor
+    ;
 
 durationAbsoluteValueFunction
-   : ABS LEFT_PAREN durationValueExpression RIGHT_PAREN
-   ;
+    : ABS LEFT_PAREN durationValueExpression RIGHT_PAREN
+    ;
 
 // 21.1 Names and Variables
 
 objectName
-   : identifier
-   ;
+    : identifier
+    ;
 
 objectNameOrBindingVariable
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 directoryName
-   : identifier
-   ;
+    : identifier
+    ;
 
 schemaName
-   : identifier
-   ;
+    : identifier
+    ;
 
 graphName
-   : REGULAR_IDENTIFIER
-   | delimitedGraphName
-   ;
+    : REGULAR_IDENTIFIER
+    | delimitedGraphName
+    ;
 
 delimitedGraphName
     // DELIMITED_IDENTIFIER
@@ -2995,66 +2995,66 @@ delimitedGraphName
     ;
 
 graphTypeName
-   : identifier
-   ;
-
-nodeTypeName
-   : identifier
-   ;
-
-edgeTypeName
-   : identifier
-   ;
-
-bindingTableName
-   : REGULAR_IDENTIFIER
-   | delimitedBindingTableName
-   ;
-
-delimitedBindingTableName
-    // DELIMITED_IDENTIFIER
-    : DOUBLE_QUOTED_CHARACTER_SEQUENCE
-    | ACCENT_QUOTED_CHARACTER_SEQUENCE
+    : identifier
     ;
 
+nodeTypeName
+    : identifier
+    ;
+
+edgeTypeName
+    : identifier
+    ;
+
+bindingTableName
+    : REGULAR_IDENTIFIER
+    | delimitedBindingTableName
+    ;
+
+delimitedBindingTableName
+     // DELIMITED_IDENTIFIER
+     : DOUBLE_QUOTED_CHARACTER_SEQUENCE
+     | ACCENT_QUOTED_CHARACTER_SEQUENCE
+     ;
+
 procedureName
-   : identifier
-   ;
+    : identifier
+    ;
 
 labelName
-   : identifier
-   ;
+    : identifier
+    ;
 
 propertyName
-   : identifier
-   ;
+    : identifier
+    ;
 
 fieldName
-   : identifier
-   ;
+    : identifier
+    ;
 
 elementVariable
-   : bindingVariable
-   ;
+    : bindingVariable
+    ;
 
 pathVariable
-   : bindingVariable
-   ;
+    : bindingVariable
+    ;
 
 subpathVariable
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 bindingVariable
-   : REGULAR_IDENTIFIER
-   ;
+    : REGULAR_IDENTIFIER
+    ;
 
 // 21.2 <literal>
 
 unsignedLiteral
-   : unsignedNumericLiteral
-   | generalLiteral
-   ;
+    : unsignedNumericLiteral
+    | generalLiteral
+    ;
 
 generalLiteral
     : BOOLEAN_LITERAL
@@ -3087,12 +3087,12 @@ datetimeLiteral
     ;
 
 listLiteral
-   : listValueConstructorByEnumeration
-   ;
+    : listValueConstructorByEnumeration
+    ;
 
 recordLiteral
-   : recordConstructor
-   ;
+    : recordConstructor
+    ;
 
 identifier
     : REGULAR_IDENTIFIER
