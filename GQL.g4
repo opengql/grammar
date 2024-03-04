@@ -2609,21 +2609,6 @@ numericValueExpression
     | numericValueFunction
     ;
 
-term
-   : factor
-   | term ASTERISK factor
-   | term SOLIDUS factor
-   ;
-
-factor
-   : (PLUS_SIGN | MINUS_SIGN)? numericPrimary
-   ;
-
-numericPrimary
-   : valueExpressionPrimary
-   | numericValueFunction
-   ;
-
 // 20.22 <numeric value function>
 
 numericValueFunction
