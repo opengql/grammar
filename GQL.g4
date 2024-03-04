@@ -2600,10 +2600,14 @@ parenthesizedBooleanValueExpression
 // 20.21 <numeric value expression>
 
 numericValueExpression
-   : term
-   | numericValueExpression PLUS_SIGN term
-   | numericValueExpression MINUS_SIGN term
-   ;
+    : (PLUS_SIGN | MINUS_SIGN) numericValueExpression
+    | numericValueExpression ASTERISK numericValueExpression
+    | numericValueExpression SOLIDUS numericValueExpression
+    | numericValueExpression PLUS_SIGN numericValueExpression
+    | numericValueExpression MINUS_SIGN numericValueExpression
+    | valueExpressionPrimary
+    | numericValueFunction
+    ;
 
 term
    : factor
@@ -2940,10 +2944,21 @@ datetimeSubtractionParameters
 
 durationTerm
    : durationFactor
-   | durationTerm ASTERISK factor
-   | durationTerm SOLIDUS factor
-   | term ASTERISK durationFactor
+   | durationTerm ASTERISK numericDurationFactor
+   | durationTerm SOLIDUS numericDurationFactor
+   | numericDurationTerm ASTERISK durationFactor
    ;
+
+numericDurationTerm
+    : numericDurationFactor
+    | numericDurationTerm ASTERISK numericDurationFactor
+    | numericDurationTerm SOLIDUS numericDurationFactor
+    ;
+
+numericDurationFactor
+    : (PLUS_SIGN | MINUS_SIGN)? valueExpressionPrimary
+    | (PLUS_SIGN | MINUS_SIGN)? numericValueFunction
+    ;
 
 durationFactor
    : (PLUS_SIGN | MINUS_SIGN)? durationPrimary
