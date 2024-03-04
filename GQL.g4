@@ -2850,14 +2850,11 @@ trimByteString
 // 20.26 <datetime value expression>
 
 datetimeValueExpression
-   : datetimePrimary
-   | durationValueExpression PLUS_SIGN datetimePrimary
+   : durationValueExpression PLUS_SIGN valueExpressionPrimary
+   | durationValueExpression PLUS_SIGN datetimeValueFunction
    | datetimeValueExpression PLUS_SIGN durationTerm
    | datetimeValueExpression MINUS_SIGN durationTerm
-   ;
-
-datetimePrimary
-   : valueExpressionPrimary
+   | valueExpressionPrimary
    | datetimeValueFunction
    ;
 
