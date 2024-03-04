@@ -2192,10 +2192,8 @@ valueExpression
    ;
 
 commonValueExpression
-   : numericValueExpression
+   : numericDatetimeDurationValueExpression
    | listStringOrPathValueExpression
-   | datetimeValueExpression
-   | durationValueExpression
    | recordExpression
    | referenceValueExpression
    ;
@@ -2216,6 +2214,27 @@ charachterOrByteStringFunction
     | byteStringFunction
     | listValueFunction
     ;
+
+// End character strings, byte strings, lists and paths.
+
+// Numeric, datetime and duration types all support roughly the same expressions. So here
+// we define a rule that deals with all of them. It is up to the implementation to post
+// process the sytnax tree and flag invalid type and function combinations.
+
+numericDatetimeDurationValueExpression
+    : (PLUS_SIGN | MINUS_SIGN) numericDatetimeDurationValueExpression
+    | numericDatetimeDurationValueExpression ASTERISK numericDatetimeDurationValueExpression
+    | numericDatetimeDurationValueExpression SOLIDUS numericDatetimeDurationValueExpression
+    | numericDatetimeDurationValueExpression PLUS_SIGN numericDatetimeDurationValueExpression
+    | numericDatetimeDurationValueExpression MINUS_SIGN numericDatetimeDurationValueExpression
+    | datetimeSubtraction
+    | valueExpressionPrimary
+    | numericValueFunction
+    | datetimeValueFunction
+    | durationValueFunction
+    ;
+
+// End numeric, datetime and duration.
 
 referenceValueExpression
    : graphReferenceValueExpression
@@ -2849,14 +2868,10 @@ trimByteString
 
 // 20.26 <datetime value expression>
 
+// The implementation should enforce that the data type is a datetime value.
 datetimeValueExpression
-   : durationValueExpression PLUS_SIGN valueExpressionPrimary
-   | durationValueExpression PLUS_SIGN datetimeValueFunction
-   | datetimeValueExpression PLUS_SIGN durationTerm
-   | datetimeValueExpression MINUS_SIGN durationTerm
-   | valueExpressionPrimary
-   | datetimeValueFunction
-   ;
+    : commonValueExpression
+    ;
 
 // 20.27 <datetime value function>
 
@@ -2909,12 +2924,10 @@ datetimeFunctionParameters
 
 // 20.28 <duration value expression>
 
+// The implemenation should enforce that the data type is a duration value.
 durationValueExpression
-   : durationTerm                                       #durationTermLabel
-   | durationValueExpression PLUS_SIGN durationTerm     #durationAdditionLabel
-   | durationValueExpression MINUS_SIGN durationTerm    #durationSubtractionLabel
-   | datetimeSubtraction                                #datetimeSubtractionLabel
-   ;
+    : commonValueExpression
+    ;
 
 datetimeSubtraction
    : DURATION_BETWEEN LEFT_PAREN datetimeSubtractionParameters RIGHT_PAREN temporalDurationQualifier?
@@ -2922,33 +2935,6 @@ datetimeSubtraction
 
 datetimeSubtractionParameters
    : datetimeValueExpression1 COMMA datetimeValueExpression2
-   ;
-
-durationTerm
-   : durationFactor
-   | durationTerm ASTERISK numericDurationFactor
-   | durationTerm SOLIDUS numericDurationFactor
-   | numericDurationTerm ASTERISK durationFactor
-   ;
-
-numericDurationTerm
-    : numericDurationFactor
-    | numericDurationTerm ASTERISK numericDurationFactor
-    | numericDurationTerm SOLIDUS numericDurationFactor
-    ;
-
-numericDurationFactor
-    : (PLUS_SIGN | MINUS_SIGN)? valueExpressionPrimary
-    | (PLUS_SIGN | MINUS_SIGN)? numericValueFunction
-    ;
-
-durationFactor
-   : (PLUS_SIGN | MINUS_SIGN)? durationPrimary
-   ;
-
-durationPrimary
-   : valueExpressionPrimary
-   | durationValueFunction
    ;
 
 datetimeValueExpression1
