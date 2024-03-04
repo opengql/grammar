@@ -2193,14 +2193,29 @@ valueExpression
 
 commonValueExpression
    : numericValueExpression
-   | stringValueExpression
+   | listStringOrPathValueExpression
    | datetimeValueExpression
    | durationValueExpression
-   | listValueExpression
    | recordExpression
-   | pathValueExpression
    | referenceValueExpression
    ;
+
+// Character strings, byte strings, lists and paths all support the same concatenation
+// operator. So here we define a rule that deals with all of them. Of course the types
+// cannot be combined. So it is up to implementation to post process the sytax tree
+// and flag invalid type and function combinations.
+
+listStringOrPathValueExpression
+    : listStringOrPathValueExpression CONCATENATION_OPERATOR valueExpressionPrimary
+    | valueExpressionPrimary
+    | charachterOrByteStringFunction
+    ;
+
+charachterOrByteStringFunction
+    : characterStringFunction
+    | byteStringFunction
+    | listValueFunction
+    ;
 
 referenceValueExpression
    : graphReferenceValueExpression
@@ -2452,13 +2467,11 @@ bindingVariableReference
    : bindingVariable
    ;
 
-pathValueExpression
-   : pathValueExpression CONCATENATION_OPERATOR pathValuePrimary    #pathValueConcatenationLabel
-   | pathValuePrimary                                               #pathValuePrimaryLabel
-   ;
+// The path value expression was combined with list and string value expressions.
+// See listStringOrPathValueExpression.
 
-pathValuePrimary
-   : valueExpressionPrimary
+pathValueExpression
+   : commonValueExpression
    ;
 
 // 20.14 <path value constructor>
@@ -2485,14 +2498,11 @@ pathElementListStep
 
 // 20.15 <list value expression>
 
-listValueExpression
-   : listValueExpression CONCATENATION_OPERATOR listPrimary     #listConcatenationLabel
-   | listPrimary                                                #listPrimaryLabel
-   ;
+// The list value expression was combined with path and string value expressions.
+// See listStringOrPathValueExpression.
 
-listPrimary
-   : listValueFunction
-   | valueExpressionPrimary
+listValueExpression
+   : commonValueExpression
    ;
 
 // 20.16 <list value function>
@@ -2743,30 +2753,20 @@ ceilingFunction
 
 // 20.23 <string value expression>
 
+// The string value expressions were combined with list and path value expressions.
+// See listStringOrPathValueExpression.
+
 stringValueExpression
-   : characterStringValueExpression
-   | byteStringValueExpression
-   ;
+    : commonValueExpression
+    ;
 
 characterStringValueExpression
-   : characterStringValueExpression CONCATENATION_OPERATOR characterStringPrimary   #characterStringConcatenationLabel
-   | characterStringPrimary                                                         #characterStringPrimaryLabel
-   ;
-
-characterStringPrimary
-   : valueExpressionPrimary
-   | characterStringFunction
-   ;
+    : commonValueExpression
+    ;
 
 byteStringValueExpression
-   : byteStringValueExpression CONCATENATION_OPERATOR byteStringPrimary #byteStringConcatenationLabel
-   | byteStringPrimary                                                  #byteStringPrimaryLabel
-   ;
-
-byteStringPrimary
-   : valueExpressionPrimary
-   | byteStringFunction
-   ;
+    : commonValueExpression
+    ;
 
 // 20.24 <string value function>
 
