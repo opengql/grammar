@@ -1,0 +1,15 @@
+CREATE GRAPH mygraph ANY
+
+CREATE GRAPH mygraph {
+  (Person :Person {lastname STRING, firstname STRING,joined DATE})
+}
+
+CREATE GRAPH mygraph mygraphtype
+
+CREATE GRAPH /mygraph LIKE /mysrcgraph
+
+CREATE GRAPH mygraph ANY AS COPY OF mysrcgraph
+
+CREATE GRAPH mygraph {
+  (Person :Person {lastname STRING, firstname STRING,joined DATE})
+} AS COPY OF mysrcgraph
