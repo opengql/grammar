@@ -1,0 +1,1 @@
+CREATE GRAPH mySocialNetwork ::{(City :City {name STRING, state STRING, country STRING})}
