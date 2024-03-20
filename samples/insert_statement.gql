@@ -1,0 +1,3 @@
+INSERT (:Person { firstname: 'Firstname', lastname: 'Lastname', joined: DATE '2023-01-01' })
+        -[:MEMBER_SINCE { since: "2023-03-20" }]->
+        (:Team { name: 'Teamname' })

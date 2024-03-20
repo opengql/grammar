@@ -1,0 +1,1 @@
+SESSION SET VALUE IF NOT EXISTS $exampleProperty = DATE '2022-10-10'
