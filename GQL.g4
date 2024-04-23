@@ -1121,7 +1121,7 @@ labelExpression
     | labelExpression VERTICAL_BAR labelExpression      #labelExpressionDisjunction
     | labelName                                         #labelExpressionName
     | PERCENT                                           #labelExpressionWildcard
-    | LEFT_PAREN labelExpression RIGHT_PAREN            #labelExpressionParenthisized
+    | LEFT_PAREN labelExpression RIGHT_PAREN            #labelExpressionParenthesized
     ;
 
 // 16.9 <path variable reference>
