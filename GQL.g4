@@ -1116,36 +1116,12 @@ parenthesizedPathPatternWhereClause
 // 16.8 <label expression>
 
 labelExpression
-    : labelTerm                                         #labelTermLabel
-    | labelExpression VERTICAL_BAR labelTerm      #labelDisjunctionLabel
-    ;
-
-labelTerm
-    : labelFactor                                      #labelFactorLabel
-    | labelTerm AMPERSAND labelFactor              #labelConjunctionLabel
-    ;
-
-labelFactor
-    : labelPrimary
-    | labelNegation
-    ;
-
-labelNegation
-    : EXCLAMATION_MARK labelPrimary
-    ;
-
-labelPrimary
-    : labelName
-    | wildcardLabel
-    | parenthesizedLabelExpression
-    ;
-
-wildcardLabel
-    : PERCENT
-    ;
-
-parenthesizedLabelExpression
-    : LEFT_PAREN labelExpression RIGHT_PAREN
+    : EXCLAMATION_MARK labelExpression                  #labelExpressionNegation
+    | labelExpression AMPERSAND labelExpression         #labelExpressionConjunction
+    | labelExpression VERTICAL_BAR labelExpression      #labelExpressionDisjunction
+    | labelName                                         #labelExpressionName
+    | PERCENT                                           #labelExpressionWildcard
+    | LEFT_PAREN labelExpression RIGHT_PAREN            #labelExpressionParenthisized
     ;
 
 // 16.9 <path variable reference>
