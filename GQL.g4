@@ -3785,7 +3785,11 @@ WHITESPACE
     | '\u202f'
     ;
 
-COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
+BRACKETED_COMMENT: '/*' .*? '*/' -> channel(HIDDEN);
+
+SIMPLE_COMMENT_SOLIDUS: '//' ~[\r\n]* -> channel(HIDDEN);
+
+SIMPLE_COMMENT_MINUS: '--' ~[\r\n]* -> channel(HIDDEN);
 
 fragment GS : [\u001D];
 
