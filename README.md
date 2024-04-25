@@ -34,3 +34,7 @@ steps to parsing using the grammar.
 Not a lot of testing has been done to date, besides spot checking using
 various hand generated snippets of GQL. In the future this grammar will be
 validated using a [Test Compatibilty Kit (TCK)](https://en.wikipedia.org/wiki/Technology_Compatibility_Kit) for GQL.
+
+# Todo
+- End of line comments
+
