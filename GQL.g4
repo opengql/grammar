@@ -822,8 +822,8 @@ elementBindingsOrElements
     ;
 
 edgeBindingsOrEdges
-    : EDGE_SYNONYM BINDINGS?
-    | EDGES_SYNONYM
+    : edgesSynonym BINDINGS?
+    | edgesSynonym
     ;
 
 pathPatternList
@@ -1520,11 +1520,11 @@ nodeTypeSpecification
     ;
 
 nodeTypePattern
-    : (NODE_SYNONYM TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
+    : (nodeSynonym TYPE? nodeTypeName)? LEFT_PAREN localNodeTypeAlias? nodeTypeFiller? RIGHT_PAREN
     ;
 
 nodeTypePhrase
-    : NODE_SYNONYM TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
+    : nodeSynonym TYPE? nodeTypePhraseFiller (AS localNodeTypeAlias)?
     ;
 
 nodeTypePhraseFiller
@@ -1567,11 +1567,11 @@ edgeTypeSpecification
     ;
 
 edgeTypePattern
-    : (edgeKind? EDGE_SYNONYM TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)
+    : (edgeKind? edgeSynonym TYPE? edgeTypeName)? (edgeTypePatternDirected | edgeTypePatternUndirected)
     ;
 
 edgeTypePhrase
-    : edgeKind EDGE_SYNONYM TYPE? edgeTypePhraseFiller endpointPairPhrase
+    : edgeKind edgeSynonym TYPE? edgeTypePhraseFiller endpointPairPhrase
     ;
 
 edgeTypePhraseFiller
@@ -1961,7 +1961,7 @@ closedNodeReferenceValueType
     ;
 
 openNodeReferenceValueType
-    : ANY? NODE_SYNONYM notNull?
+    : ANY? nodeSynonym notNull?
     ;
 
 edgeReferenceValueType
@@ -1974,7 +1974,7 @@ closedEdgeReferenceValueType
     ;
 
 openEdgeReferenceValueType
-    : ANY? EDGE_SYNONYM notNull?
+    : ANY? edgeSynonym notNull?
     ;
 
 pathValueType
@@ -3072,7 +3072,8 @@ recordLiteral
     ;
 
 identifier
-    : REGULAR_IDENTIFIER
+    : nonReservedWords
+    | REGULAR_IDENTIFIER
     // DELIMITED_IDENTIFIER
     | DOUBLE_QUOTED_CHARACTER_SEQUENCE
     | ACCENT_QUOTED_CHARACTER_SEQUENCE
@@ -3127,22 +3128,22 @@ durationString
     : characterStringLiteral
     ;
 
-// 21.1 Names and Variables
-
-NODE_SYNONYM
+nodeSynonym
     : NODE
     | VERTEX
     ;
 
-EDGES_SYNONYM
+edgesSynonym
     : EDGES
     | RELATIONSHIPS
     ;
 
-EDGE_SYNONYM
+edgeSynonym
     : EDGE
     | RELATIONSHIP
     ;
+
+// 21.1 Names and Variables
 
 IMPLIES
     : RIGHT_DOUBLE_ARROW
@@ -3154,6 +3155,57 @@ fragment PARAMETER_NAME
     ;
 
 // 21.2 <literal>
+
+nonReservedWords
+    : ACYCLIC
+    | BINDING
+    | BINDINGS
+    | CONNECTING
+    | DESTINATION
+    | DIFFERENT
+    | DIRECTED
+    | EDGE
+    | EDGES
+    | ELEMENT
+    | ELEMENTS
+    | FIRST
+    | GRAPH
+    | GROUPS
+    | KEEP
+    | LABEL
+    | LABELED
+    | LABELS
+    | LAST
+    | NFC
+    | NFD
+    | NFKC
+    | NFKD
+    | NO
+    | NODE
+    | NORMALIZED
+    | ONLY
+    | ORDINALITY
+    | PROPERTY
+    | READ
+    | RELATIONSHIP
+    | RELATIONSHIPS
+    | REPEATABLE
+    | SHORTEST
+    | SIMPLE
+    | SOURCE
+    | TABLE
+    | TEMP
+    | TO
+    | TRAIL
+    | TRANSACTION
+    | TYPE
+    | UNDIRECTED
+    | VERTEX
+    | WALK
+    | WITHOUT
+    | WRITE
+    | ZONE
+    ;
 
 BOOLEAN_LITERAL
     : 'TRUE'
