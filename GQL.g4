@@ -963,42 +963,26 @@ numberOfGroups
 // 16.7 <path pattern expression>
 
 pathPatternExpression
-    : pathTerm
-    | pathMultisetAlternation
-    | pathPatternUnion
-    ;
-
-pathMultisetAlternation
-    : pathTerm MULTISET_ALTERNATION_OPERATOR pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)*
-    ;
-
-pathPatternUnion
-    : pathTerm VERTICAL_BAR pathTerm (VERTICAL_BAR pathTerm)*
+    : pathTerm                                                                                  #ppePathTerm
+    | pathTerm MULTISET_ALTERNATION_OPERATOR pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)* #ppeMultisetAlternation
+    | pathTerm VERTICAL_BAR pathTerm (VERTICAL_BAR pathTerm)*                                   #ppePatternUnion
     ;
 
 pathTerm
-    : pathFactor                #pathFactorLabel
-    | pathTerm pathFactor     #pathConcatenationLabel
+    : pathFactor                #ptPathFactor
+    | pathTerm pathFactor       #ptConcatenation
     ;
 
 pathFactor
-    : pathPrimary
-    | quantifiedPathPrimary
-    | questionedPathPrimary
-    ;
-
-quantifiedPathPrimary
-    : pathPrimary graphPatternQuantifier
-    ;
-
-questionedPathPrimary
-    : pathPrimary QUESTION_MARK
+    : pathPrimary                           #pfPathPrimary
+    | pathPrimary graphPatternQuantifier    #pfQuantifiedPathPrimary
+    | pathPrimary QUESTION_MARK             #pfQuestionedPathPrimary
     ;
 
 pathPrimary
-    : elementPattern
-    | parenthesizedPathPatternExpression
-    | simplifiedPathPatternExpression
+    : elementPattern                        #ppElementPattern
+    | parenthesizedPathPatternExpression    #ppParenthesizedPathPatternExpression
+    | simplifiedPathPatternExpression       #ppSimplifiedPathPatternExpression
     ;
 
 elementPattern
