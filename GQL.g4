@@ -963,14 +963,13 @@ numberOfGroups
 // 16.7 <path pattern expression>
 
 pathPatternExpression
-    : pathTerm                                                                                  #ppePathTerm
-    | pathTerm MULTISET_ALTERNATION_OPERATOR pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)* #ppeMultisetAlternation
-    | pathTerm VERTICAL_BAR pathTerm (VERTICAL_BAR pathTerm)*                                   #ppePatternUnion
+    : pathTerm                                              #ppePathTerm
+    | pathTerm (MULTISET_ALTERNATION_OPERATOR pathTerm)+    #ppeMultisetAlternation
+    | pathTerm (VERTICAL_BAR pathTerm)+                     #ppePatternUnion
     ;
 
 pathTerm
-    : pathFactor                #ptPathFactor
-    | pathTerm pathFactor       #ptConcatenation
+    : pathFactor+
     ;
 
 pathFactor
