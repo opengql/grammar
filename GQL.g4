@@ -792,9 +792,14 @@ graphPatternYieldItemList
     | NO BINDINGS
     ;
 
+// <elemement variable reference> and <path variable reference> are identical productions, both consisting
+// of a single non-terminal <binding variable reference>. Thus <graph pattern yield item> is ambiguous
+// from a parsing standpoint. So here we simply use bindingVariableReference. Post parsing code must
+// apply the semantics assocaited with each type of <binding variable reference>.
 graphPatternYieldItem
-    : elementVariableReference
-    | pathVariableReference
+    : bindingVariableReference
+//    : elementVariableReference
+//    | pathVariableReference
     ;
 
 // 16.4 <graph pattern>
