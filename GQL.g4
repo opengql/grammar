@@ -3017,7 +3017,7 @@ bindingVariable
 // 21.2 <literal>
 
 unsignedLiteral
-    : unsignedNumericLiteral
+    : UNSIGNED_NUMERIC_LITERAL
     | generalLiteral
     ;
 
@@ -3076,19 +3076,14 @@ characterStringLiteral
     | DOUBLE_QUOTED_CHARACTER_SEQUENCE
     ;
 
-// Validate that the NUMERIC_LITERAL is an unsignedInteger.
+// Validate that the UNSIGNED_NUMERIC_LITERAL is an unsignedInteger.
 unsignedInteger
-    : NUMERIC_LITERAL
+    : UNSIGNED_NUMERIC_LITERAL
     ;
 
-// Validate that the NUMERIC_LITERAL is an unsignedDecimalInteger.
+// Validate that the UNSIGNED_NUMERIC_LITERAL is an unsignedDecimalInteger.
 unsignedDecimalInteger
-    : NUMERIC_LITERAL
-    ;
-
-// Validate that the NUMERIC_LITERAL is an unsignedNumericLiteral.
-unsignedNumericLiteral
-    : NUMERIC_LITERAL
+    : UNSIGNED_NUMERIC_LITERAL
     ;
 
 nullLiteral
@@ -3274,11 +3269,11 @@ BYTE_STRING_LITERAL
     : 'X' QUOTE SPACE* (HEX_DIGIT SPACE* HEX_DIGIT SPACE*)* QUOTE
     ;
 
-NUMERIC_LITERAL
-    : (PLUS_SIGN | MINUS_SIGN)? UNSIGNED_NUMERIC_LITERAL
-    ;
+//NUMERIC_LITERAL
+//    : (PLUS_SIGN | MINUS_SIGN)? UNSIGNED_NUMERIC_LITERAL
+//    ;
 
-fragment UNSIGNED_NUMERIC_LITERAL
+UNSIGNED_NUMERIC_LITERAL
     : EXACT_NUMERIC_LITERAL
     | APPROXIMATE_NUMERIC_LITERAL
     ;
