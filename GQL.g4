@@ -411,10 +411,10 @@ simpleDataModifyingStatement
     ;
 
 primitiveDataModifyingStatement
-    : insertStatement
-    | setStatement
-    | removeStatement
-    | deleteStatement
+    : insertStatement                                                       #insertStatementAlt
+    | setStatement                                                          #setStatementAlt
+    | removeStatement                                                       #removeStatementAlt
+    | deleteStatement                                                       #deleteStatementAlt
     ;
 
 // 13.2 <insertStatement>
