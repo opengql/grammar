@@ -283,8 +283,8 @@ linearCatalogModifyingStatement
     ;
 
 simpleCatalogModifyingStatement
-    : primitiveCatalogModifyingStatement        #primitiveCatalogModifyingStatementAlt
-    | callCatalogModifyingProcedureStatement    #callCatalogModifyingProcedureStatementAlt
+    : primitiveCatalogModifyingStatement
+    | callCatalogModifyingProcedureStatement
     ;
 
 primitiveCatalogModifyingStatement
