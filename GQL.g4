@@ -288,12 +288,12 @@ simpleCatalogModifyingStatement
     ;
 
 primitiveCatalogModifyingStatement
-    : createSchemaStatement         #createSchemaStatementAlt
-    | dropSchemaStatement           #dropSchemaStatementAlt
-    | createGraphStatement          #createGraphStatementAlt
-    | dropGraphStatement            #dropGraphStatementAlt
-    | createGraphTypeStatement      #createGraphTypeStatementAlt
-    | dropGraphTypeStatement        #dropGraphTypeStatementAlt
+    : createSchemaStatement
+    | dropSchemaStatement
+    | createGraphStatement
+    | dropGraphStatement
+    | createGraphTypeStatement
+    | dropGraphTypeStatement
     ;
 
 // 12.2 <insert schema statement>
