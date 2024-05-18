@@ -406,8 +406,8 @@ simpleLinearDataAccessingStatement
 //    ;
 
 simpleDataModifyingStatement
-    : primitiveDataModifyingStatement
-    | callDataModifyingProcedureStatement
+    : primitiveDataModifyingStatement                                       #primitiveDataModifyingStatementAlt
+    | callDataModifyingProcedureStatement                                   #callDataModifyingProcedureStatementAlt
     ;
 
 primitiveDataModifyingStatement
