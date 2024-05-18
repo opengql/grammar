@@ -406,15 +406,15 @@ simpleLinearDataAccessingStatement
 //    ;
 
 simpleDataModifyingStatement
-    : primitiveDataModifyingStatement                                       #primitiveDataModifyingStatementAlt
-    | callDataModifyingProcedureStatement                                   #callDataModifyingProcedureStatementAlt
+    : primitiveDataModifyingStatement
+    | callDataModifyingProcedureStatement
     ;
 
 primitiveDataModifyingStatement
-    : insertStatement                                                       #insertStatementAlt
-    | setStatement                                                          #setStatementAlt
-    | removeStatement                                                       #removeStatementAlt
-    | deleteStatement                                                       #deleteStatementAlt
+    : insertStatement
+    | setStatement
+    | removeStatement
+    | deleteStatement
     ;
 
 // 13.2 <insertStatement>
