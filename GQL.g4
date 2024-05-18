@@ -369,8 +369,8 @@ callCatalogModifyingProcedureStatement
 // 13.1 <linear data-modifying statement>
 
 linearDataModifyingStatement
-    : focusedLinearDataModifyingStatement
-    | ambientLinearDataModifyingStatement
+    : focusedLinearDataModifyingStatement                                   #focusedLinearDataModifyingStatementAlt
+    | ambientLinearDataModifyingStatement                                   #ambientLinearDataModifyingStatementAlt
     ;
 
 focusedLinearDataModifyingStatement
