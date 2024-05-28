@@ -641,8 +641,7 @@ forItemAlias
     ;
 
 forItemSource
-    : listValueExpression
-    | bindingTableReferenceValueExpression
+    : valueExpression
     ;
 
 forOrdinalityOrOffset
@@ -2010,10 +2009,8 @@ searchCondition
 // 19.2 <predicate>
 
 predicate
-    : comparisonPredicate
-    | existsPredicate
+    : existsPredicate
     | nullPredicate
-    | normalizedPredicate
     | valueTypePredicate
     | directedPredicate
     | labeledPredicate
@@ -2025,12 +2022,11 @@ predicate
 
 // 19.3 <comparison predicate>
 
-comparisonPredicate
-    : comparisonPredicand comparisonPredicatePart2
-    ;
+// The <comparison predicate> productions moved to valueExpression
+// to avoid left mutually recursive productions.
 
 comparisonPredicatePart2
-    : compOp comparisonPredicand
+    : compOp valueExpression
     ;
 
 compOp
@@ -2040,11 +2036,6 @@ compOp
     | RIGHT_ANGLE_BRACKET
     | LESS_THAN_OR_EQUALS_OPERATOR
     | GREATER_THAN_OR_EQUALS_OPERATOR
-    ;
-
-comparisonPredicand
-    : commonValueExpression
-    | booleanPredicand
     ;
 
 // 19.4 <exists predicate>
@@ -2074,10 +2065,6 @@ valueTypePredicatePart2
     ;
 
 // 19.7 <normalized predicate>
-
-normalizedPredicate
-    : stringValueExpression normalizedPredicatePart2
-    ;
 
 normalizedPredicatePart2
     : IS NOT? normalForm? NORMALIZED
@@ -2151,71 +2138,72 @@ property_existsPredicate
 
 // 20.1 <value expression>
 
+// This version of valueExpression sucks up rules broken out in the standard to a single production. This
+// eliminates ambiguity in multiple rules specifying valueExpressionPrimary.
+
 valueExpression
-    : commonValueExpression
-    | booleanValueExpression
-    ;
-
-commonValueExpression
-    : numericDatetimeDurationValueExpression
-    | listStringOrPathValueExpression
-    | recordExpression
-    | referenceValueExpression
-    ;
-
-// Character strings, byte strings, lists and paths all support the same concatenation
-// operator. So here we define a rule that deals with all of them. Of course the types
-// cannot be combined. So it is up to implementation to post process the sytax tree
-// and flag invalid type and function combinations.
-
-listStringOrPathValueExpression
-    : listStringOrPathValueExpression CONCATENATION_OPERATOR valueExpressionPrimary
-    | valueExpressionPrimary
-    | charachterOrByteStringFunction
-    ;
-
-charachterOrByteStringFunction
-    : characterStringFunction
-    | byteStringFunction
-    | listValueFunction
-    ;
-
-// End character strings, byte strings, lists and paths.
-
-// Numeric, datetime and duration types all support roughly the same expressions. So here
-// we define a rule that deals with all of them. It is up to the implementation to post
-// process the sytnax tree and flag invalid type and function combinations.
-
-numericDatetimeDurationValueExpression
-    : (PLUS_SIGN | MINUS_SIGN) numericDatetimeDurationValueExpression
-    | numericDatetimeDurationValueExpression ASTERISK numericDatetimeDurationValueExpression
-    | numericDatetimeDurationValueExpression SOLIDUS numericDatetimeDurationValueExpression
-    | numericDatetimeDurationValueExpression PLUS_SIGN numericDatetimeDurationValueExpression
-    | numericDatetimeDurationValueExpression MINUS_SIGN numericDatetimeDurationValueExpression
-    | datetimeSubtraction
-    | valueExpressionPrimary
+    // Numeric, datetime and duration types all support roughly the same expressions. So here
+    // we define a rule that deals with all of them. It is up to the implementation to post
+    // process the sytnax tree and flag invalid type and function combinations.
+    : sign = (PLUS_SIGN | MINUS_SIGN) valueExpression
+    | valueExpression operator = (ASTERISK | SOLIDUS) valueExpression
+    | valueExpression operator = (PLUS_SIGN | MINUS_SIGN) valueExpression
+    // Character strings, byte strings, lists and paths all support the same concatenation
+    // operator. So here we define a rule that deals with all of them. Of course the types
+    // cannot be combined. So it is up to implementation to post process the sytax tree
+    // and flag invalid type and function combinations.
+    | valueExpression CONCATENATION_OPERATOR valueExpressionPrimary
+    // Boolean value expression included here.
+    | NOT valueExpression
+    | valueExpression IS NOT? truthValue
+    | valueExpression AND valueExpression
+    | valueExpression operator = (OR | XOR) valueExpression
+    // The comparisonPredicate productions moved here to eliminate left mutual recursion.
+    | valueExpression comparisonPredicatePart2
+    | predicate
+    // The normalizedPredicate productions moved here to eliminate left mutual recursion.
+    | valueExpression normalizedPredicatePart2
+    | PROPERTY? GRAPH graphExpression
+    | BINDING? TABLE bindingTableExpression
     | numericValueFunction
+    | datetimeSubtraction
     | datetimeValueFunction
     | durationValueFunction
-    ;
-
-// End numeric, datetime and duration.
-
-referenceValueExpression
-    : graphReferenceValueExpression
-    | bindingTableReferenceValueExpression
-    | nodeReferenceValueExpression
-    | edgeReferenceValueExpression
-    ;
-
-graphReferenceValueExpression
-    : PROPERTY? GRAPH graphExpression
+    | characterOrByteStringFunction
+    | listValueFunction
     | valueExpressionPrimary
     ;
 
-bindingTableReferenceValueExpression
-    : BINDING? TABLE bindingTableExpression
-    | valueExpressionPrimary
+booleanValueExpression
+    : valueExpression
+    ;
+
+characterOrByteStringFunction
+    : subCharacterOrByteString
+    | trimSingleCharacterOrByteString
+    | foldCharacterString
+    | trimMultiCharacterCharacterString
+    | normalizeCharacterString
+    ;
+
+subCharacterOrByteString
+    : (LEFT | RIGHT) LEFT_PAREN valueExpression COMMA stringLength RIGHT_PAREN
+    ;
+
+trimSingleCharacterOrByteString
+    : TRIM LEFT_PAREN trimOperands RIGHT_PAREN
+    ;
+
+foldCharacterString
+    : (UPPER | LOWER) LEFT_PAREN valueExpression RIGHT_PAREN
+    ;
+
+trimMultiCharacterCharacterString
+    : (BTRIM | LTRIM | RTRIM) LEFT_PAREN valueExpression (COMMA valueExpression)? RIGHT_PAREN
+    ;
+
+normalizeCharacterString
+    : NORMALIZE LEFT_PAREN valueExpression (COMMA normalForm)? RIGHT_PAREN
     ;
 
 nodeReferenceValueExpression
@@ -2223,10 +2211,6 @@ nodeReferenceValueExpression
     ;
 
 edgeReferenceValueExpression
-    : valueExpressionPrimary
-    ;
-
-recordExpression
     : valueExpressionPrimary
     ;
 
@@ -2240,8 +2224,9 @@ valueExpressionPrimary
     : parenthesizedValueExpression
     | aggregateFunction
     | unsignedValueSpecification
-    | listValueConstructor
-    | recordConstructor
+// List and Record literals are reduntantly/abiguously part of the literal production
+//    | listValueConstructor
+//    | recordConstructor
     | pathValueConstructor
     | valueExpressionPrimary PERIOD propertyName      // <propertyReference
     | valueQueryExpression
@@ -2264,8 +2249,9 @@ nonParenthesizedValueExpressionPrimary
 nonParenthesizedValueExpressionPrimarySpecialCase
     : aggregateFunction
     | unsignedValueSpecification
-    | listValueConstructor
-    | recordConstructor
+// List and Record literals are reduntantly/abiguously part of the literal production
+//    | listValueConstructor
+//    | recordConstructor
     | pathValueConstructor
     | valueExpressionPrimary PERIOD propertyName      // <property reference>
     | valueQueryExpression
@@ -2455,7 +2441,7 @@ bindingVariableReference
 // See listStringOrPathValueExpression.
 
 pathValueExpression
-    : commonValueExpression
+    : valueExpression
     ;
 
 // 20.14 <path value constructor>
@@ -2486,10 +2472,14 @@ pathElementListStep
 // See listStringOrPathValueExpression.
 
 listValueExpression
-    : commonValueExpression
+    : valueExpression
     ;
 
 // 20.16 <list value function>
+
+// Note: ByteString functions were moved to characterByteStringOrListFunction, some alternatives
+// apply to characterString, byteString and list. Breaking them out separately resulted in
+// ambiguity.
 
 listValueFunction
     : trimListFunction
@@ -2544,51 +2534,18 @@ field
 
 // 20.20 <boolean value expression>
 
-booleanValueExpression
-    : booleanTerm
-    | booleanValueExpression OR booleanTerm
-    | booleanValueExpression XOR booleanTerm
-    ;
-
-booleanTerm
-    : booleanFactor
-    | booleanTerm AND booleanFactor
-    ;
-
-booleanFactor
-    : NOT? booleanTest
-    ;
-
-booleanTest
-    : booleanPrimary (IS NOT? truthValue)?
-    ;
+// Most of <boolean value expression> is incorporated in valueExpression
 
 truthValue
     : BOOLEAN_LITERAL
     ;
 
-booleanPrimary
-    : predicate
-    | booleanPredicand
-    ;
-
-booleanPredicand
-    : parenthesizedBooleanValueExpression
-    | nonParenthesizedValueExpressionPrimary
-    ;
-
-parenthesizedBooleanValueExpression
-    : LEFT_PAREN booleanValueExpression RIGHT_PAREN
-    ;
-
 // 20.21 <numeric value expression>
 
 numericValueExpression
-    : (PLUS_SIGN | MINUS_SIGN) numericValueExpression
-    | numericValueExpression ASTERISK numericValueExpression
-    | numericValueExpression SOLIDUS numericValueExpression
-    | numericValueExpression PLUS_SIGN numericValueExpression
-    | numericValueExpression MINUS_SIGN numericValueExpression
+    : sign = (PLUS_SIGN | MINUS_SIGN) numericValueExpression
+    | numericValueExpression operator = (ASTERISK | SOLIDUS) numericValueExpression
+    | numericValueExpression operator = (PLUS_SIGN | MINUS_SIGN) numericValueExpression
     | valueExpressionPrimary
     | numericValueFunction
     ;
@@ -2623,10 +2580,7 @@ cardinalityExpression
     ;
 
 cardinalityExpressionArgument
-    : bindingTableReferenceValueExpression
-    | pathValueExpression
-    | listValueExpression
-    | recordExpression
+    : valueExpression
     ;
 
 charLengthExpression
@@ -2727,56 +2681,27 @@ ceilingFunction
 // 20.23 <string value expression>
 
 // The string value expressions were combined with list and path value expressions.
-// See listStringOrPathValueExpression.
-
-stringValueExpression
-    : commonValueExpression
-    ;
 
 characterStringValueExpression
-    : commonValueExpression
+    : valueExpression
     ;
 
 byteStringValueExpression
-    : commonValueExpression
+    : valueExpression
     ;
 
 // 20.24 <string value function>
 
-characterStringFunction
-    : substringFunction
-    | fold
-    | trimFunction
-    | normalizeFunction
-    ;
-
-substringFunction
-    : (LEFT | RIGHT) LEFT_PAREN characterStringValueExpression COMMA stringLength RIGHT_PAREN
-    ;
-
-fold
-    : (UPPER | LOWER) LEFT_PAREN characterStringValueExpression RIGHT_PAREN
-    ;
-
-trimFunction
-    : singleCharacterTrimFunction
-    | multiCharacterTrimFunction
-    ;
-
-singleCharacterTrimFunction
-    : TRIM LEFT_PAREN trimOperands RIGHT_PAREN
-    ;
-
-multiCharacterTrimFunction
-    : (BTRIM | LTRIM | RTRIM) LEFT_PAREN trimSource (COMMA trimCharacterString)? RIGHT_PAREN
-    ;
+// Note: String functions were moved to characterByteStringOrListFunction, some alternatives
+// apply to characterString, byteString and list. Breaking them out separately resulted in
+// ambiguity.
 
 trimOperands
-    : (trimSpecification? trimCharacterString? FROM)? trimSource
+    : (trimSpecification? trimCharacterOrByteString? FROM)? trimCharacterOrByteStringSource
     ;
 
-trimSource
-    : characterStringValueExpression
+trimCharacterOrByteStringSource
+    : valueExpression
     ;
 
 trimSpecification
@@ -2785,12 +2710,8 @@ trimSpecification
     | BOTH
     ;
 
-trimCharacterString
-    : characterStringValueExpression
-    ;
-
-normalizeFunction
-    : NORMALIZE LEFT_PAREN characterStringValueExpression (COMMA normalForm)? RIGHT_PAREN
+trimCharacterOrByteString
+    : valueExpression
     ;
 
 normalForm
@@ -2806,36 +2727,15 @@ stringLength
 
 // 20.25 <byte string function>
 
-byteStringFunction
-    : byteStringSubstringFunction
-    | byteStringTrimFunction
-    ;
-
-byteStringSubstringFunction
-    : (LEFT | RIGHT) LEFT_PAREN byteStringValueExpression COMMA stringLength RIGHT_PAREN
-    ;
-
-byteStringTrimFunction
-    : TRIM LEFT_PAREN byteStringTrimOperands RIGHT_PAREN
-    ;
-
-byteStringTrimOperands
-    : (trimSpecification? trimByteString? FROM)? byteStringTrimSource
-    ;
-
-byteStringTrimSource
-    : byteStringValueExpression
-    ;
-
-trimByteString
-    : byteStringValueExpression
-    ;
+// Note: ByteString functions were moved to characterByteStringOrListFunction, some alternatives
+// apply to characterString, byteString and list. Breaking them out separately resulted in
+// ambiguity.
 
 // 20.26 <datetime value expression>
 
 // The implementation should enforce that the data type is a datetime value.
 datetimeValueExpression
-     : commonValueExpression
+     : valueExpression
      ;
 
 // 20.27 <datetime value function>
@@ -2891,7 +2791,7 @@ datetimeFunctionParameters
 
 // The implemenation should enforce that the data type is a duration value.
 durationValueExpression
-    : commonValueExpression
+    : valueExpression
     ;
 
 datetimeSubtraction
