@@ -2145,33 +2145,37 @@ valueExpression
     // Numeric, datetime and duration types all support roughly the same expressions. So here
     // we define a rule that deals with all of them. It is up to the implementation to post
     // process the sytnax tree and flag invalid type and function combinations.
-    : sign = (PLUS_SIGN | MINUS_SIGN) valueExpression
-    | valueExpression operator = (ASTERISK | SOLIDUS) valueExpression
-    | valueExpression operator = (PLUS_SIGN | MINUS_SIGN) valueExpression
+    : sign = (PLUS_SIGN | MINUS_SIGN) valueExpression                       #signedExprAlt
+    | valueExpression operator = (ASTERISK | SOLIDUS) valueExpression       #multDivExprAlt
+    | valueExpression operator = (PLUS_SIGN | MINUS_SIGN) valueExpression   #addSubtractExprAlt
     // Character strings, byte strings, lists and paths all support the same concatenation
     // operator. So here we define a rule that deals with all of them. Of course the types
     // cannot be combined. So it is up to implementation to post process the sytax tree
     // and flag invalid type and function combinations.
-    | valueExpression CONCATENATION_OPERATOR valueExpressionPrimary
+    | valueExpression CONCATENATION_OPERATOR valueExpressionPrimary         #concatenationExprAlt
     // Boolean value expression included here.
-    | NOT valueExpression
-    | valueExpression IS NOT? truthValue
-    | valueExpression AND valueExpression
-    | valueExpression operator = (OR | XOR) valueExpression
+    | NOT valueExpression                                                   #notExprAlt
+    | valueExpression IS NOT? truthValue                                    #isNotExprAlt
+    | valueExpression AND valueExpression                                   #conjunctiveExprAlt
+    | valueExpression operator = (OR | XOR) valueExpression                 #disjunctiveExprAlt
     // The comparisonPredicate productions moved here to eliminate left mutual recursion.
-    | valueExpression comparisonPredicatePart2
-    | predicate
+| valueExpression comparisonPredicatePart2                                  #comparisonExprAlt
+    | predicate                                                             #predicateExprAlt
     // The normalizedPredicate productions moved here to eliminate left mutual recursion.
-    | valueExpression normalizedPredicatePart2
-    | PROPERTY? GRAPH graphExpression
-    | BINDING? TABLE bindingTableExpression
-    | numericValueFunction
+    | valueExpression normalizedPredicatePart2                              #normalizedPredicateExprAlt
+    | PROPERTY? GRAPH graphExpression                                       #propertyGraphExprAlt
+    | BINDING? TABLE bindingTableExpression                                 #bindingTableExprAlt
+    | valueFunction                                                         #valueFunctionExprAlt
+    | valueExpressionPrimary                                                #primaryExprAlt
+    ;
+
+valueFunction
+    : numericValueFunction
     | datetimeSubtraction
     | datetimeValueFunction
     | durationValueFunction
     | characterOrByteStringFunction
     | listValueFunction
-    | valueExpressionPrimary
     ;
 
 booleanValueExpression
