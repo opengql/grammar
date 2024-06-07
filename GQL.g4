@@ -1525,7 +1525,7 @@ nodeTypeFiller
     ;
 
 localNodeTypeAlias
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 nodeTypeImpliedContent
@@ -1670,11 +1670,11 @@ connectorUndirected
     ;
 
 sourceNodeTypeAlias
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 destinationNodeTypeAlias
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 // 18.4 <label set phrase> and <label set specification>
@@ -2841,7 +2841,7 @@ objectName
     ;
 
 objectNameOrBindingVariable
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 directoryName
@@ -2853,7 +2853,7 @@ schemaName
     ;
 
 graphName
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     | delimitedGraphName
     ;
 
@@ -2876,7 +2876,7 @@ edgeTypeName
     ;
 
 bindingTableName
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     | delimitedBindingTableName
     ;
 
@@ -2911,11 +2911,11 @@ pathVariable
     ;
 
 subpathVariable
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 bindingVariable
-    : REGULAR_IDENTIFIER
+    : regularIdentifier
     ;
 
 // 21.2 <literal>
@@ -2964,11 +2964,15 @@ recordLiteral
     ;
 
 identifier
-    : nonReservedWords
-    | REGULAR_IDENTIFIER
+    : regularIdentifier
     // DELIMITED_IDENTIFIER
     | DOUBLE_QUOTED_CHARACTER_SEQUENCE
     | ACCENT_QUOTED_CHARACTER_SEQUENCE
+    ;
+
+regularIdentifier
+    : REGULAR_IDENTIFIER
+    | nonReservedWords
     ;
 
 timeZoneString
