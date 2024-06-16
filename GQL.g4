@@ -2159,7 +2159,7 @@ valueExpression
     | valueExpression AND valueExpression                                   #conjunctiveExprAlt
     | valueExpression operator = (OR | XOR) valueExpression                 #disjunctiveExprAlt
     // The comparisonPredicate productions moved here to eliminate left mutual recursion.
-| valueExpression comparisonPredicatePart2                                  #comparisonExprAlt
+    | valueExpression comparisonPredicatePart2                              #comparisonExprAlt
     | predicate                                                             #predicateExprAlt
     // The normalizedPredicate productions moved here to eliminate left mutual recursion.
     | valueExpression normalizedPredicatePart2                              #normalizedPredicateExprAlt
@@ -2599,8 +2599,9 @@ pathLengthExpression
     : PATH_LENGTH LEFT_PAREN pathValueExpression RIGHT_PAREN
     ;
 
+// absoluteValueExpression applies to both numeric types and duration types. They have the same syntax.
 absoluteValueExpression
-    : ABS LEFT_PAREN numericValueExpression RIGHT_PAREN
+    : ABS LEFT_PAREN valueExpression RIGHT_PAREN
     ;
 
 modulusExpression
@@ -2818,7 +2819,7 @@ datetimeValueExpression2
 
 durationValueFunction
     : durationFunction
-    | durationAbsoluteValueFunction
+    | absoluteValueExpression
     ;
 
 durationFunction
@@ -2828,10 +2829,6 @@ durationFunction
 durationFunctionParameters
     : durationString
     | recordConstructor
-    ;
-
-durationAbsoluteValueFunction
-    : ABS LEFT_PAREN durationValueExpression RIGHT_PAREN
     ;
 
 // 21.1 Names and Variables
