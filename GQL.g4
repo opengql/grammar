@@ -2152,7 +2152,7 @@ valueExpression
     // operator. So here we define a rule that deals with all of them. Of course the types
     // cannot be combined. So it is up to implementation to post process the sytax tree
     // and flag invalid type and function combinations.
-    | valueExpression CONCATENATION_OPERATOR valueExpressionPrimary         #concatenationExprAlt
+    | valueExpression CONCATENATION_OPERATOR valueExpression                #concatenationExprAlt
     // Boolean value expression included here.
     | NOT valueExpression                                                   #notExprAlt
     | valueExpression IS NOT? truthValue                                    #isNotExprAlt
