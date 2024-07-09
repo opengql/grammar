@@ -1412,7 +1412,7 @@ absoluteDirectoryPath
     ;
 
 relativeDirectoryPath
-    : DOUBLE_PERIOD ((SOLIDUS DOUBLE_PERIOD)+ SOLIDUS simpleDirectoryPath?)?
+    : DOUBLE_PERIOD (SOLIDUS DOUBLE_PERIOD)* SOLIDUS simpleDirectoryPath?
     ;
 
 simpleDirectoryPath
