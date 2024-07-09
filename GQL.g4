@@ -826,7 +826,7 @@ elementBindingsOrElements
     ;
 
 edgeBindingsOrEdges
-    : edgesSynonym BINDINGS?
+    : edgeSynonym BINDINGS?
     | edgesSynonym
     ;
 
