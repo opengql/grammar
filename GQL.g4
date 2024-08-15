@@ -396,14 +396,13 @@ ambientLinearDataModifyingStatementBody
     ;
 
 simpleLinearDataAccessingStatement
-    : simpleQueryStatement* simpleDataModifyingStatement+
+    : simpleDataAccessingStatement+
     ;
 
-// Subsumed by previous rule to enforce 13.1 SR 5
-//simpleDataAccessingStatement
-//    : simpleQueryStatement
-//    | simpleDataModifyingStatement
-//    ;
+simpleDataAccessingStatement
+    : simpleQueryStatement
+    | simpleDataModifyingStatement
+    ;
 
 simpleDataModifyingStatement
     : primitiveDataModifyingStatement
