@@ -1912,11 +1912,11 @@ immaterialValueType
     ;
 
 nullType
-    : NULL
+    : NULL_KW
     ;
 
 emptyType
-    : NULL notNull
+    : NULL_KW notNull
     | NOTHING
     ;
 
@@ -1990,7 +1990,7 @@ fieldTypeList
     ;
 
 notNull
-    :  NOT NULL
+    :  NOT NULL_KW
     ;
 
 // 18.10 <field type>
@@ -2050,7 +2050,7 @@ nullPredicate
     ;
 
 nullPredicatePart2
-    : IS NOT? NULL
+    : IS NOT? NULL_KW
     ;
 
 // 19.6 <value type predicate>
@@ -3012,7 +3012,7 @@ unsignedDecimalInteger
     ;
 
 nullLiteral
-    : NULL
+    : NULL_KW
     ;
 
 dateString
@@ -3410,7 +3410,7 @@ NODETACH: 'NODETACH';
 NORMALIZE: 'NORMALIZE';
 NOT: 'NOT';
 NOTHING: 'NOTHING';
-NULL: 'NULL';
+NULL_KW: 'NULL';            // NULL is a commonly used macro in C++.
 NULLS: 'NULLS';
 NULLIF: 'NULLIF';
 OCTET_LENGTH: 'OCTET_LENGTH';
@@ -3515,7 +3515,7 @@ FUNCTION: 'FUNCTION';
 GQLSTATUS: 'GQLSTATUS';
 GRANT: 'GRANT';
 INSTANT: 'INSTANT';
-INFINITY: 'INFINITY';
+INFINITY_KW: 'INFINITY';            // INFINITY is a commonly used macro in C++
 NUMBER: 'NUMBER';
 NUMERIC: 'NUMERIC';
 ON: 'ON';
