@@ -2024,10 +2024,6 @@ predicate
 // The <comparison predicate> productions moved to valueExpression
 // to avoid left mutually recursive productions.
 
-comparisonPredicatePart2
-    : compOp valueExpression
-    ;
-
 compOp
     : EQUALS_OPERATOR
     | NOT_EQUALS_OPERATOR
@@ -2152,16 +2148,16 @@ valueExpression
     // cannot be combined. So it is up to implementation to post process the sytax tree
     // and flag invalid type and function combinations.
     | valueExpression CONCATENATION_OPERATOR valueExpression                #concatenationExprAlt
+    // The comparisonPredicate productions moved here to eliminate left mutual recursion.
+    | valueExpression compOp valueExpression                                #comparisonExprAlt //comparisonPredicatePart2
+    | predicate                                                             #predicateExprAlt
+    // The normalizedPredicate productions moved here to eliminate left mutual recursion.
+    | valueExpression normalizedPredicatePart2                              #normalizedPredicateExprAlt
     // Boolean value expression included here.
     | NOT valueExpression                                                   #notExprAlt
     | valueExpression IS NOT? truthValue                                    #isNotExprAlt
     | valueExpression AND valueExpression                                   #conjunctiveExprAlt
     | valueExpression operator = (OR | XOR) valueExpression                 #disjunctiveExprAlt
-    // The comparisonPredicate productions moved here to eliminate left mutual recursion.
-    | valueExpression comparisonPredicatePart2                              #comparisonExprAlt
-    | predicate                                                             #predicateExprAlt
-    // The normalizedPredicate productions moved here to eliminate left mutual recursion.
-    | valueExpression normalizedPredicatePart2                              #normalizedPredicateExprAlt
     | PROPERTY? GRAPH graphExpression                                       #propertyGraphExprAlt
     | BINDING? TABLE bindingTableExpression                                 #bindingTableExprAlt
     | valueFunction                                                         #valueFunctionExprAlt
@@ -2347,7 +2343,7 @@ whenOperandList
 
 whenOperand
     : nonParenthesizedValueExpressionPrimary
-    | comparisonPredicatePart2
+    | compOp valueExpression    //comparisonPredicatePart2
     | nullPredicatePart2
     | valueTypePredicatePart2
     | normalizedPredicatePart2
@@ -2635,7 +2631,7 @@ trigonometricFunctionName
     ;
 
 generalLogarithmFunction
-    : LOG LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
+    : LOGKW LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
     ;
 
 generalLogarithmBase
@@ -3395,7 +3391,7 @@ LOCAL: 'LOCAL';
 LOCAL_DATETIME: 'LOCAL_DATETIME';
 LOCAL_TIME: 'LOCAL_TIME';
 LOCAL_TIMESTAMP: 'LOCAL_TIMESTAMP';
-LOG: 'LOG';
+LOGKW: 'LOG';
 LOG10: 'LOG10';
 LOWER: 'LOWER';
 LTRIM: 'LTRIM';
