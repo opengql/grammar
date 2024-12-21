@@ -2631,7 +2631,7 @@ trigonometricFunctionName
     ;
 
 generalLogarithmFunction
-    : LOGKW LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
+    : LOG_KW LEFT_PAREN generalLogarithmBase COMMA generalLogarithmArgument RIGHT_PAREN
     ;
 
 generalLogarithmBase
@@ -3391,7 +3391,7 @@ LOCAL: 'LOCAL';
 LOCAL_DATETIME: 'LOCAL_DATETIME';
 LOCAL_TIME: 'LOCAL_TIME';
 LOCAL_TIMESTAMP: 'LOCAL_TIMESTAMP';
-LOGKW: 'LOG';
+LOG_KW: 'LOG';
 LOG10: 'LOG10';
 LOWER: 'LOWER';
 LTRIM: 'LTRIM';
