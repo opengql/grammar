@@ -244,8 +244,8 @@ valueInitializer
 // 11.1 <graph expression>
 
 graphExpression
-    : objectExpressionPrimary
-    | graphReference
+    : graphReference
+    | objectExpressionPrimary
     | objectNameOrBindingVariable
     | currentGraph
     ;
@@ -259,8 +259,8 @@ currentGraph
 
 bindingTableExpression
     : nestedBindingTableQuerySpecification
-    | objectExpressionPrimary
     | bindingTableReference
+    | objectExpressionPrimary
     | objectNameOrBindingVariable
     ;
 
