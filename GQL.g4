@@ -670,7 +670,6 @@ returnStatement
 
 returnStatementBody
     : setQuantifier? (ASTERISK | returnItemList) groupByClause?
-    | NO BINDINGS
     ;
 
 returnItemList
@@ -787,7 +786,6 @@ graphPatternYieldClause
 
 graphPatternYieldItemList
     : graphPatternYieldItem (COMMA graphPatternYieldItem)*
-    | NO BINDINGS
     ;
 
 // <elemement variable reference> and <path variable reference> are identical productions, both consisting
@@ -1001,7 +999,7 @@ elementPatternFiller
     ;
 
 elementVariableDeclaration
-    : TEMP? elementVariable
+    : elementVariable
     ;
 
 isLabelExpression
@@ -1968,7 +1966,7 @@ pathValueType
     ;
 
 listValueTypeName
-    : GROUP? listValueTypeNameSynonym
+    : listValueTypeNameSynonym
     ;
 
 listValueTypeNameSynonym
@@ -3098,7 +3096,6 @@ nonReservedWords
     | SIMPLE
     | SOURCE
     | TABLE
-    | TEMP
     | TO
     | TRAIL
     | TRANSACTION
@@ -3575,7 +3572,6 @@ SHORTEST: 'SHORTEST';
 SIMPLE: 'SIMPLE';
 SOURCE: 'SOURCE';
 TABLE: 'TABLE';
-TEMP: 'TEMP';
 TO: 'TO';
 TRAIL: 'TRAIL';
 TRANSACTION: 'TRANSACTION';
