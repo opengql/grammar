@@ -3175,15 +3175,17 @@ fragment ESCAPED_REVERSE_SOLIDUS: REVERSE_SOLIDUS REVERSE_SOLIDUS;
 fragment ESCAPED_QUOTE: REVERSE_SOLIDUS QUOTE;
 fragment ESCAPED_DOUBLE_QUOTE: REVERSE_SOLIDUS DOUBLE_QUOTE;
 fragment ESCAPED_GRAVE_ACCENT: REVERSE_SOLIDUS GRAVE_ACCENT;
-fragment ESCAPED_TAB: REVERSE_SOLIDUS 't';
-fragment ESCAPED_BACKSPACE: REVERSE_SOLIDUS 'b';
-fragment ESCAPED_NEW_LINE: REVERSE_SOLIDUS 'n';
-fragment ESCAPED_CARRIAGE_RETURN: REVERSE_SOLIDUS 'r';
-fragment ESCAPED_FORM_FEED: REVERSE_SOLIDUS 'f';
+fragment ESCAPED_TAB options { caseInsensitive=false; }: REVERSE_SOLIDUS 't';
+fragment ESCAPED_BACKSPACE options { caseInsensitive=false; }: REVERSE_SOLIDUS 'b';
+fragment ESCAPED_NEW_LINE options { caseInsensitive=false; }: REVERSE_SOLIDUS 'n';
+fragment ESCAPED_CARRIAGE_RETURN options { caseInsensitive=false; }: REVERSE_SOLIDUS 'r';
+fragment ESCAPED_FORM_FEED options { caseInsensitive=false; }: REVERSE_SOLIDUS 'f';
 fragment ESCAPED_UNICODE4_DIGIT_VALUE:
-	REVERSE_SOLIDUS 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
+	START_UNICODE4 HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
 fragment ESCAPED_UNICODE6_DIGIT_VALUE:
-	REVERSE_SOLIDUS 'u' HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
+	START_UNICODE6 HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT HEX_DIGIT;
+fragment START_UNICODE4  options { caseInsensitive=false; }: REVERSE_SOLIDUS 'u';
+fragment START_UNICODE6  options { caseInsensitive=false; }: REVERSE_SOLIDUS 'U';
 
 // Todo: Finish this. It is tricky how it interacts with <separator>
 BYTE_STRING_LITERAL
@@ -3253,16 +3255,19 @@ fragment SIGNED_DECIMAL_INTEGER
     ;
 
 UNSIGNED_HEXADECIMAL_INTEGER
-    : '0x' ('_'? HEX_DIGIT)+
+    : START_HEX ('_'? HEX_DIGIT)+
     ;
+fragment START_HEX options { caseInsensitive=false; }: '0x';
 
 UNSIGNED_OCTAL_INTEGER
-    : '0o' ('_'? OCTAL_DIGIT)+
+    : START_OCTAL ('_'? OCTAL_DIGIT)+
     ;
+fragment START_OCTAL options { caseInsensitive=false; }: '0o';
 
 UNSIGNED_BINARY_INTEGER
-    : '0b' ('_'? BINARY_DIGIT)+
+    : START_BIN ('_'? BINARY_DIGIT)+
     ;
+fragment START_BIN options { caseInsensitive=false; }: '0b';
 
 fragment APPROXIMATE_NUMBER_SUFFIX
     : 'F'
