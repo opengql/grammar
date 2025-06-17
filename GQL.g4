@@ -190,9 +190,9 @@ statementBlock
     ;
 
 statement
-    : linearCatalogModifyingStatement
+    : compositeQueryStatement
+    | linearCatalogModifyingStatement
     | linearDataModifyingStatement
-    | compositeQueryStatement
     ;
 
 nextStatement
