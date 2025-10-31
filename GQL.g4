@@ -33,7 +33,7 @@ endTransactionCommand
 // 7.1 <session set command>
 
 sessionSetCommand
-    : SESSION SET (sessionSetSchemaClause | sessionSetGraphClause | sessionSetTimeZoneClause | sessionSetParameterClause)
+    : SESSION SET (sessionSetSchemaClause | sessionSetGraphClause | sessionSetTimeZoneClause | sessionSetParameterClause | sessionSetListBehaviorClause)
     ;
 
 sessionSetSchemaClause
@@ -74,6 +74,32 @@ sessionSetParameterName
     : (IF NOT EXISTS)? sessionParameterSpecification
     ;
 
+sessionSetListBehaviorClause
+    : listValueTypeNameSynonym BEHAVIOR listBehavior
+    | listValueTypeNameSynonym BEHAVIOR LEFT_PAREN listBehavior (COMMA listBehavior)* RIGHT_PAREN
+    ;
+
+listBehavior
+    : INDEX offsetOrOrdinal
+    | NEGATIVE INDEX fromEndOrOutOfRange
+    | OUT OF RANGE nullOrError
+    ;
+
+offsetOrOrdinal
+    : OFFSET
+    | ORDINAL
+    ;
+
+fromEndOrOutOfRange
+    : FROM END
+    | OUT OF RANGE
+    ;
+
+nullOrError
+    : NULL_KW
+    | ERROR
+    ;
+
 // 7.2 <session reset command>
 
 sessionResetCommand
@@ -86,6 +112,7 @@ sessionResetArguments
     | PROPERTY? GRAPH
     | TIME ZONE
     | PARAMETER? sessionParameterSpecification
+    | listValueTypeNameSynonym BEHAVIOR
     ;
 
 // 7.3 <session close command>
@@ -193,6 +220,7 @@ statement
     : compositeQueryStatement
     | linearCatalogModifyingStatement
     | linearDataModifyingStatement
+    | conditionalStatement
     ;
 
 nextStatement
@@ -294,6 +322,8 @@ primitiveCatalogModifyingStatement
     | dropGraphStatement
     | createGraphTypeStatement
     | dropGraphTypeStatement
+    | createConstraintStatement
+    | dropConstraintStatement
     ;
 
 // 12.2 <insert schema statement>
@@ -365,6 +395,19 @@ dropGraphTypeStatement
 callCatalogModifyingProcedureStatement
     : callProcedureStatement
     ;
+
+createConstraintStatement
+    : CREATE (CONSTRAINT (IF NOT EXISTS)?) | OR REPLACE CONSTRAINT constraintParentGraphSpecification? constraintSpecification
+    ;
+
+constraintParentGraphSpecification
+    : graphExpression PERIOD
+    ;
+
+dropConstraintStatement
+    : DROP CONSTRAINT (IF EXISTS)? constraintParentGraphSpecification constraintName
+    ;
+
 
 // 13.1 <linear data-modifying statement>
 
@@ -622,7 +665,7 @@ letVariableDefinitionList
 
 letVariableDefinition
     : valueVariableDefinition
-    | bindingVariable EQUALS_OPERATOR valueExpression
+    | bindingVariable (typed valueType?)? EQUALS_OPERATOR valueExpression
     ;
 
 // 14.8 <for statement>
@@ -762,6 +805,30 @@ procedureArgument
     : valueExpression
     ;
 
+// 15.4 <conditional statement>
+
+conditionalStatement
+    : searchedConditionalStatement
+    ;
+
+searchedConditionalStatement
+    : conditionalStatementWhenClause+ conditionalStatementElseClasue?
+    ;
+
+conditionalStatementWhenClause
+    : WHEN searchCondition THEN conditionalStatementResult
+    ;
+
+conditionalStatementElseClasue
+    : ELSE conditionalStatementResult
+    ;
+
+conditionalStatementResult
+    : nestedProcedureSpecification
+    | linearDataModifyingStatement
+    | linearQueryStatement
+    ;
+
 // 16.1 <at schema clasue>
 
 atSchemaClause
@@ -774,7 +841,77 @@ useGraphClause
     : USE graphExpression
     ;
 
-// 16.3 <graph pattern binding table>
+// 16.3 <constraint graph pattern>
+
+constraintGraphPattern
+    : constraintElementPattern
+    ;
+
+constraintElementPattern
+    : constraintNodePattern
+    | constraintEdgePattern
+    ;
+
+constraintNodePattern
+    : LEFT_PAREN constraintElementPatternFiller? RIGHT_PAREN
+    ;
+
+constraintEdgePattern
+    : constraintEdgePatternDirected
+    | constraintEdgePatternUndirected
+    | constraintEdgePatternLeftOrUndirected
+    | constraintEdgePatternUndirectedOrRght
+    | constraintEdgePatternAnyDirection
+    ;
+
+constraintEdgePatternDirected
+    : constraintEdgePatternPointingLeft
+    | constraintEdgePatternPointingRight
+    | constraintEdgePatternPointingLeftOrRight
+    ;
+
+constraintEdgePatternPointingLeft
+    : constraintEdgePatternDestination LEFT_ANGLE_BRACKET constraintElementPatternFiller? RIGHT_BRACKET_MINUS constraintEdgePatternSource
+    ;
+
+constraintEdgePatternPointingRight
+    : constraintEdgePatternSource MINUS_LEFT_BRACKET constraintElementPatternFiller? BRACKET_RIGHT_ARROW constraintEdgePatternDestination
+    ;
+
+constraintEdgePatternPointingLeftOrRight
+    : constraintEdgePatternSource LEFT_ARROW_BRACKET constraintElementPatternFiller? BRACKET_RIGHT_ARROW constraintEdgePatternDestination
+    ;
+
+constraintEdgePatternUndirected
+    : constraintEdgePatternSource TILDE_LEFT_BRACKET constraintElementPatternFiller? RIGHT_BRACKET_TILDE constraintEdgePatternDestination
+    ;
+
+constraintEdgePatternLeftOrUndirected
+    : constraintEdgePatternDestination LEFT_ARROW_TILDE_BRACKET constraintElementPatternFiller? RIGHT_BRACKET_TILDE constraintEdgePatternSource
+    ;
+
+constraintEdgePatternUndirectedOrRght
+    : constraintEdgePatternSource TILDE_LEFT_BRACKET constraintElementPatternFiller? BRACKET_TILDE_RIGHT_ARROW constraintEdgePatternDestination
+    ;
+
+constraintEdgePatternAnyDirection
+    : constraintEdgePatternSource MINUS_LEFT_BRACKET constraintElementPatternFiller? RIGHT_BRACKET_MINUS constraintEdgePatternDestination
+    ;
+
+constraintEdgePatternSource
+    : constraintNodePattern
+    ;
+
+constraintEdgePatternDestination
+    : constraintNodePattern
+    ;
+
+constraintElementPatternFiller
+    : elementVariableDeclaration (isOrColon labelSetSpecification IMPLIES?)?
+    | isOrColon labelSetSpecification IMPLIES?
+    ;
+
+// 16.4 <graph pattern binding table>
 
 graphPatternBindingTable
     : graphPattern graphPatternYieldClause?
@@ -798,7 +935,7 @@ graphPatternYieldItem
 //    | pathVariableReference
     ;
 
-// 16.4 <graph pattern>
+// 16.5 <graph pattern>
 
 graphPattern
     : matchMode? pathPatternList keepClause? graphPatternWhereClause?
@@ -847,7 +984,7 @@ graphPatternWhereClause
     : WHERE searchCondition
     ;
 
-// 16.5 <insert graph pattern>
+// 16.6 <insert graph pattern>
 
 insertGraphPattern
     : insertPathPatternList
@@ -893,7 +1030,7 @@ labelAndPropertySetSpecification
     | (isOrColon labelSetSpecification)? elementPropertySpecification
     ;
 
-// 16.6 <path pattern prefix>
+// 16.7 <path pattern prefix>
 
 pathPatternPrefix
     : pathModePrefix
@@ -961,7 +1098,7 @@ numberOfGroups
     : nonNegativeIntegerSpecification
     ;
 
-// 16.7 <path pattern expression>
+// 16.8 <path pattern expression>
 
 pathPatternExpression
     : pathTerm                                              #ppePathTerm
@@ -1097,7 +1234,7 @@ parenthesizedPathPatternWhereClause
     : WHERE searchCondition
     ;
 
-// 16.8 <label expression>
+// 16.9 <label expression>
 
 labelExpression
     : EXCLAMATION_MARK labelExpression                  #labelExpressionNegation
@@ -1108,19 +1245,19 @@ labelExpression
     | LEFT_PAREN labelExpression RIGHT_PAREN            #labelExpressionParenthesized
     ;
 
-// 16.9 <path variable reference>
+// 16.10 <path variable reference>
 
 pathVariableReference
     : bindingVariableReference
     ;
 
-// 16.10 <element variable reference>
+// 16.11 <element variable reference>
 
 elementVariableReference
     : bindingVariableReference
     ;
 
-// 16.11 <graph pattern quantifier>
+// 16.12 <graph pattern quantifier>
 
 graphPatternQuantifier
     : ASTERISK
@@ -1145,7 +1282,7 @@ upperBound
     : unsignedInteger
     ;
 
-// 16.12 <simplified path pattern expression>
+// 16.13 <simplified path pattern expression>
 
 simplifiedPathPatternExpression
     : simplifiedDefaultingLeft
@@ -1280,13 +1417,13 @@ simplifiedPrimary
     | LEFT_PAREN simplifiedContents RIGHT_PAREN
     ;
 
-// 16.13 <where clause>
+// 16.14 <where clause>
 
 whereClause
     : WHERE searchCondition
     ;
 
-// 16.14 <yield clause>
+// 16.15 <yield clause>
 
 yieldClause
     : YIELD yieldItemList
@@ -1308,7 +1445,7 @@ yieldItemAlias
     : AS bindingVariable
     ;
 
-// 16.15 <group by clasue>
+// 16.16 <group by clasue>
 
 groupByClause
     : GROUP BY groupingElementList
@@ -1327,13 +1464,13 @@ emptyGroupingSet
     : LEFT_PAREN RIGHT_PAREN
     ;
 
-// 16.16 <order by clasue>
+// 16.17 <order by clasue>
 
 orderByClause
     : ORDER BY sortSpecificationList
     ;
 
-// 16.17 <sort specification list>
+// 16.18 <sort specification list>
 
 sortSpecificationList
     : sortSpecification (COMMA sortSpecification)*
@@ -1359,13 +1496,23 @@ nullOrdering
     | NULLS LAST
     ;
 
-// 16.18 <limit clause>
+// 16.19 <limit clause>
 
 limitClause
-    : LIMIT nonNegativeIntegerSpecification
+    : LIMIT limitApproximation? nonNegativeIntegerSpecification
     ;
 
-// 16.19 <offset clause>
+limitApproximation
+    : approximationSynonym
+    | EXACT
+    ;
+
+approximationSynonym
+    : APPROX
+    | APPROXIMATE
+    ;
+
+// 16.20 <offset clause>
 
 offsetClause
     : offsetSynonym nonNegativeIntegerSpecification
@@ -1484,11 +1631,16 @@ nestedGraphTypeSpecification
     ;
 
 graphTypeSpecificationBody
-    : elementTypeList
+    : graphTypeBodyItemList
     ;
 
-elementTypeList
-    : elementTypeSpecification (COMMA elementTypeSpecification)*
+graphTypeBodyItemList
+    : graphTypeBodyItem (COMMA graphTypeBodyItem)*
+    ;
+
+graphTypeBodyItem
+    : elementTypeSpecification
+    | CONSTRAINT constraintSpecification
     ;
 
 elementTypeSpecification
@@ -1743,6 +1895,7 @@ predefinedType
     | byteStringType
     | numericType
     | temporalType
+    | vectorType
     | referenceValueType
     | immaterialValueType
     ;
@@ -1897,6 +2050,18 @@ temporalDurationQualifier
     | DAY TO SECOND
     ;
 
+vectorType
+    : VECTOR LEFT_PAREN dimension COMMA coordinateType RIGHT_PAREN notNull?
+    ;
+
+dimension
+    : unsignedInteger
+    ;
+
+coordinateType
+    : numericType
+    ;
+
 referenceValueType
     : graphReferenceValueType
     | bindingTableReferenceValueType
@@ -1928,7 +2093,7 @@ closedGraphReferenceValueType
     ;
 
 openGraphReferenceValueType
-    : ANY PROPERTY? GRAPH notNull?
+    : ANY? PROPERTY? GRAPH notNull?
     ;
 
 bindingTableReferenceValueType
@@ -1997,6 +2162,40 @@ fieldType
     : fieldName typed? valueType
     ;
 
+constraintSpecification
+    : constraintName constraintBody
+    ;
+
+constraintBody
+    : FOR constraintGraphPattern REQUIRE constraintRequirement
+    ;
+
+constraintRequirement
+    : keyConstraintRequirement
+    | uniqueConstraintRequirement
+    ;
+
+keyConstraintRequirement
+    : keyValueSpecification IS KEY
+    ;
+
+uniqueConstraintRequirement
+    : keyValueSpecification IS UNIQUE
+    ;
+
+keyValueSpecification
+    : keyValueComponent
+    | LEFT_PAREN keyValueComponentList RIGHT_PAREN
+    ;
+
+keyValueComponentList
+    : keyValueComponent (COMMA keyValueComponent)*
+    ;
+
+keyValueComponent
+    : elementVariable (PERIOD propertyName)?
+    ;
+
 // 19.1 <search condition>
 
 searchCondition
@@ -2015,6 +2214,7 @@ predicate
     | all_differentPredicate
     | samePredicate
     | property_existsPredicate
+    | constraintSatisfactionPredicate
     ;
 
 // 19.3 <comparison predicate>
@@ -2044,7 +2244,7 @@ nullPredicate
     ;
 
 nullPredicatePart2
-    : IS NOT? NULL_KW
+    : IS NOT? CONTAINING? NULL_KW
     ;
 
 // 19.6 <value type predicate>
@@ -2129,6 +2329,16 @@ property_existsPredicate
     : PROPERTY_EXISTS LEFT_PAREN elementVariableReference COMMA propertyName RIGHT_PAREN
     ;
 
+// 19.14 <constraint satisfaction predicate>
+
+constraintSatisfactionPredicate
+    : graphExpression? constraintSatisfactionPredicatePart2
+    ;
+
+constraintSatisfactionPredicatePart2
+    : IS NOT? SATISFYING CONSTRAINT LEFT_PAREN constraintBody RIGHT_PAREN
+    ;
+
 // 20.1 <value expression>
 
 // This version of valueExpression sucks up rules broken out in the standard to a single production. This
@@ -2159,7 +2369,11 @@ valueExpression
     | PROPERTY? GRAPH graphExpression                                       #propertyGraphExprAlt
     | BINDING? TABLE bindingTableExpression                                 #bindingTableExprAlt
     | valueFunction                                                         #valueFunctionExprAlt
+    | vectorValueExpression                                                 #vectorValueExprAlt
     | valueExpressionPrimary                                                #primaryExprAlt
+    // Pull <listElementReference up from <unparenthesized value expression primary> to remove mutual left
+    // recursion. But that make valueExpression more permissive than it is defined to be.
+    | valueExpression LEFT_BRACKET numericValueExpression RIGHT_BRACKET     #listElemRefExprAlt
     ;
 
 valueFunction
@@ -2181,6 +2395,7 @@ characterOrByteStringFunction
     | foldCharacterString
     | trimMultiCharacterCharacterString
     | normalizeCharacterString
+    | vectorSerialize
     ;
 
 subCharacterOrByteString
@@ -2349,6 +2564,7 @@ whenOperand
     | labeledPredicatePart2
     | sourcePredicatePart2
     | destinationPredicatePart2
+    | constraintSatisfactionPredicatePart2
     ;
 
 result
@@ -2384,7 +2600,7 @@ aggregateFunction
     ;
 
 generalSetFunction
-    : generalSetFunctionType LEFT_PAREN setQuantifier? valueExpression RIGHT_PAREN
+    : generalSetFunctionType LEFT_PAREN setQuantifier? valueExpression (COMMA emptyAggregateBehavior)? RIGHT_PAREN
     ;
 
 binarySetFunction
@@ -2397,9 +2613,21 @@ generalSetFunctionType
     | MAX
     | MIN
     | SUM
+    | PRODUCT
     | COLLECT_LIST
     | STDDEV_SAMP
     | STDDEV_POP
+    ;
+
+emptyAggregateBehavior
+    : (NULL_KW | emptyAggregateValue) ON EMPTY
+    ;
+
+// It is difficult to restrict the aggregate value in the parser to '1' and '0' without conflicting with the
+// definition of unsignedIntegers. So in the parse phase we accept an unsigned decimal integer here. It should be
+// restricted to '1' or '0' post parse.
+emptyAggregateValue
+    : UNSIGNED_DECIMAL_INTEGER
     ;
 
 setQuantifier
@@ -2534,7 +2762,7 @@ field
 // Most of <boolean value expression> is incorporated in valueExpression
 
 truthValue
-    : BOOLEAN_LITERAL
+    : booleanLiteral
     ;
 
 // 20.21 <numeric value expression>
@@ -2563,6 +2791,9 @@ numericValueFunction
     | squareRoot
     | floorFunction
     | ceilingFunction
+    | vectorDimensionCount
+    | vectorDistanceFunction
+    | vectorNormFunction
     ;
 
 lengthExpression
@@ -2676,7 +2907,37 @@ ceilingFunction
     : (CEIL | CEILING) LEFT_PAREN numericValueExpression RIGHT_PAREN
     ;
 
-// 20.23 <string value expression>
+vectorDimensionCount
+    : VECTOR_DIMENSION_COUNT LEFT_PAREN vectorValueExpression RIGHT_PAREN
+    ;
+
+// 20.23 <vector distance function>
+
+vectorDistanceFunction
+    : VECTOR_DISTANCE LEFT_PAREN vectorValueExpression COMMA vectorValueExpression RIGHT_PAREN
+    ;
+
+vectorDistanceMetric
+    : EUCLIDEAN
+    | EUCLIDEAN_SQUARED
+    | MANHATTAN
+    | COSINE
+    | DOT
+    | HAMMING
+    ;
+
+// 20.24 <vector norm function>
+
+vectorNormFunction
+    : VECTOR_NORM LEFT_PAREN vectorValueExpression COMMA vectorNormMetric RIGHT_PAREN
+    ;
+
+vectorNormMetric
+    : EUCLIDEAN
+    | MANHATTAN
+    ;
+
+// 20.25 <string value expression>
 
 // The string value expressions were combined with list and path value expressions.
 
@@ -2688,7 +2949,7 @@ byteStringValueExpression
     : valueExpression
     ;
 
-// 20.24 <string value function>
+// 20.26 <string value function>
 
 // Note: String functions were moved to characterByteStringOrListFunction, some alternatives
 // apply to characterString, byteString and list. Breaking them out separately resulted in
@@ -2723,20 +2984,24 @@ stringLength
     : numericValueExpression
     ;
 
-// 20.25 <byte string function>
+vectorSerialize
+    : VECTOR_SERIALIZE LEFT_PAREN vectorValueExpression RIGHT_PAREN (RETURNING characterStringType)?
+    ;
+
+// 20.27 <byte string function>
 
 // Note: ByteString functions were moved to characterByteStringOrListFunction, some alternatives
 // apply to characterString, byteString and list. Breaking them out separately resulted in
 // ambiguity.
 
-// 20.26 <datetime value expression>
+// 20.28 <datetime value expression>
 
 // The implementation should enforce that the data type is a datetime value.
 datetimeValueExpression
      : valueExpression
      ;
 
-// 20.27 <datetime value function>
+// 20.29 <datetime value function>
 
 datetimeValueFunction
     : dateFunction
@@ -2785,7 +3050,7 @@ datetimeFunctionParameters
     | recordConstructor
     ;
 
-// 20.28 <duration value expression>
+// 20.30 <duration value expression>
 
 // The implemenation should enforce that the data type is a duration value.
 durationValueExpression
@@ -2808,7 +3073,7 @@ datetimeValueExpression2
     : datetimeValueExpression
     ;
 
-// 20.29 <duration value function>
+// 20.31 <duration value function>
 
 durationValueFunction
     : durationFunction
@@ -2822,6 +3087,29 @@ durationFunction
 durationFunctionParameters
     : durationString
     | recordConstructor
+    ;
+
+// 20.32 <vector value expression>
+
+vectorValueExpression
+    : valueExpressionPrimary
+    | vectorValueFunction
+    ;
+
+// 20.33 <vector value function>
+
+vectorValueFunction
+    : vectorValueConstructor
+    ;
+
+vectorValueConstructor
+    : VECTOR LEFT_PAREN characterStringValueExpression COMMA dimension COMMA coordinateType RIGHT_PAREN
+    ;
+
+// 20.34 <listElementReference>
+
+listElementReference
+    : listValueExpression LEFT_BRACKET numericValueExpression RIGHT_BRACKET
     ;
 
 // 21.1 Names and Variables
@@ -2862,6 +3150,10 @@ nodeTypeName
     ;
 
 edgeTypeName
+    : identifier
+    ;
+
+constraintName
     : identifier
     ;
 
@@ -2916,7 +3208,7 @@ unsignedLiteral
     ;
 
 generalLiteral
-    : BOOLEAN_LITERAL
+    : booleanLiteral
     | characterStringLiteral
     | BYTE_STRING_LITERAL
     | temporalLiteral
@@ -3058,26 +3350,46 @@ fragment PARAMETER_NAME
 
 // 21.2 <literal>
 
+booleanLiteral
+    : 'TRUE'
+    | 'FALSE'
+    | UNKNOWN
+    ;
+
 nonReservedWords
     : ACYCLIC
+    | APPROX
+    | APPROXIMATE
+    | BEHAVIOR
     | BINDING
     | BINDINGS
     | CONNECTING
+    | COSINE
     | DESTINATION
     | DIFFERENT
     | DIRECTED
+    | DOT
     | EDGE
     | EDGES
     | ELEMENT
     | ELEMENTS
+    | EMPTY
+    | ERROR
+    | EUCLIDEAN
+    | EUCLIDEAN_SQUARED
+    | EXACT
     | FIRST
     | GRAPH
     | GROUPS
+    | HAMMING
+    | INDEX
     | KEEP
     | LABEL
     | LABELED
     | LABELS
     | LAST
+    | MANHATTAN
+    | NEGATIVE
     | NFC
     | NFD
     | NFKC
@@ -3086,12 +3398,16 @@ nonReservedWords
     | NODE
     | NORMALIZED
     | ONLY
+    | ORDINAL
     | ORDINALITY
+    | OUT
     | PROPERTY
+    | RANGE
     | READ
     | RELATIONSHIP
     | RELATIONSHIPS
     | REPEATABLE
+    | RETURNING
     | SHORTEST
     | SIMPLE
     | SOURCE
@@ -3099,19 +3415,12 @@ nonReservedWords
     | TO
     | TRAIL
     | TRANSACTION
-    | TYPE
     | UNDIRECTED
     | VERTEX
     | WALK
     | WITHOUT
     | WRITE
     | ZONE
-    ;
-
-BOOLEAN_LITERAL
-    : 'TRUE'
-    | 'FALSE'
-    | 'UNKNOWN'
     ;
 
 SINGLE_QUOTED_CHARACTER_SEQUENCE
@@ -3312,6 +3621,8 @@ CLOSE: 'CLOSE';
 COALESCE: 'COALESCE';
 COLLECT_LIST: 'COLLECT_LIST';
 COMMIT: 'COMMIT';
+CONSTRAINT: 'CONSTRAINT';
+CONTAINING: 'CONTAINING';
 COPY: 'COPY';
 COS: 'COS';
 COSH: 'COSH';
@@ -3382,6 +3693,7 @@ INTEGER256: 'INTEGER256';
 INTERSECT: 'INTERSECT';
 INTERVAL: 'INTERVAL';
 IS: 'IS';
+KEY: 'KEY';
 LEADING: 'LEADING';
 LEFT: 'LEFT';
 LET: 'LET';
@@ -3414,6 +3726,7 @@ NULLIF: 'NULLIF';
 OCTET_LENGTH: 'OCTET_LENGTH';
 OF: 'OF';
 OFFSET: 'OFFSET';
+ON: 'ON';
 OPTIONAL: 'OPTIONAL';
 OR: 'OR';
 ORDER: 'ORDER';
@@ -3427,18 +3740,21 @@ PERCENTILE_CONT: 'PERCENTILE_CONT';
 PERCENTILE_DISC: 'PERCENTILE_DISC';
 POWER: 'POWER';
 PRECISION: 'PRECISION';
+PRODUCT: 'PRODUCT';
 PROPERTY_EXISTS: 'PROPERTY_EXISTS';
 RADIANS: 'RADIANS';
 REAL: 'REAL';
 RECORD: 'RECORD';
 REMOVE: 'REMOVE';
 REPLACE: 'REPLACE';
+REQUIRE: 'REQUIRE';
 RESET: 'RESET';
 RETURN: 'RETURN';
 RIGHT: 'RIGHT';
 ROLLBACK: 'ROLLBACK';
 RTRIM: 'RTRIM';
 SAME: 'SAME';
+SATISFYING: 'SATISFYING';
 SCHEMA: 'SCHEMA';
 SECOND: 'SECOND';
 SELECT: 'SELECT';
@@ -3465,6 +3781,7 @@ TIME: 'TIME';
 TIMESTAMP: 'TIMESTAMP';
 TRAILING: 'TRAILING';
 TRIM: 'TRIM';
+TYPE: 'TYPE';
 TYPED: 'TYPED';
 UBIGINT: 'UBIGINT';
 UINT: 'UINT';
@@ -3475,6 +3792,8 @@ UINT64: 'UINT64';
 UINT128: 'UINT128';
 UINT256: 'UINT256';
 UNION: 'UNION';
+UNIQUE: 'UNIQUE';
+UNKNOWN: 'UNKNOWN';
 UNSIGNED: 'UNSIGNED';
 UPPER: 'UPPER';
 USE: 'USE';
@@ -3483,6 +3802,11 @@ VALUE: 'VALUE';
 VARBINARY: 'VARBINARY';
 VARCHAR: 'VARCHAR';
 VARIABLE: 'VARIABLE';
+VECTOR: 'VECTOR';
+VECTOR_DIMENSION_COUNT: 'VECTOR_DIMENSION_COUNT';
+VECTOR_DISTANCE: 'VECTOR_DISTANCE';
+VECTOR_NORM: 'VECTOR_NORM';
+VECTOR_SERIALIZE: 'VECTOR_SERIALIZE';
 WHEN: 'WHEN';
 WHERE: 'WHERE';
 WITH: 'WITH';
@@ -3501,13 +3825,11 @@ ALTER: 'ALTER';
 CATALOG: 'CATALOG';
 CLEAR: 'CLEAR';
 CLONE: 'CLONE';
-CONSTRAINT: 'CONSTRAINT';
 CURRENT_ROLE: 'CURRENT_ROLE';
 CURRENT_USER: 'CURRENT_USER';
 DATA: 'DATA';
 DIRECTORY: 'DIRECTORY';
 DRYRUN: 'DRYRUN';
-EXACT: 'EXACT';
 EXISTING: 'EXISTING';
 FUNCTION: 'FUNCTION';
 GQLSTATUS: 'GQLSTATUS';
@@ -3516,11 +3838,9 @@ INSTANT: 'INSTANT';
 INFINITY_KW: 'INFINITY';            // INFINITY is a commonly used macro in C++
 NUMBER: 'NUMBER';
 NUMERIC: 'NUMERIC';
-ON: 'ON';
 OPEN: 'OPEN';
 PARTITION: 'PARTITION';
 PROCEDURE: 'PROCEDURE';
-PRODUCT: 'PRODUCT';
 PROJECT: 'PROJECT';
 QUERY: 'QUERY';
 RECORDS: 'RECORDS';
@@ -3530,30 +3850,43 @@ REVOKE: 'REVOKE';
 SUBSTRING: 'SUBSTRING';
 SYSTEM_USER: 'SYSTEM_USER';
 TEMPORAL: 'TEMPORAL';
-UNIQUE: 'UNIQUE';
 UNIT: 'UNIT';
 VALUES: 'VALUES';
 
 // Nonreserved words
 ACYCLIC: 'ACYCLIC';
+APPROX: 'APPROX';
+APPROXIMATE: 'APPROXIMATE';
+BEHAVIOR: 'BEHAVIOR';
 BINDING: 'BINDING';
 BINDINGS: 'BINDINGS';
 CONNECTING: 'CONNECTING';
+COSINE: 'COSINE';
 DESTINATION: 'DESTINATION';
 DIFFERENT: 'DIFFERENT';
 DIRECTED: 'DIRECTED';
+DOT: 'DOT';
 EDGE: 'EDGE';
 EDGES: 'EDGES';
 ELEMENT: 'ELEMENT';
 ELEMENTS: 'ELEMENTS';
+EMPTY: 'EMPTY';
+ERROR: 'ERROR';
+EUCLIDEAN: 'EUCLIDEAN';
+EUCLIDEAN_SQUARED: 'EUCLIDEAN_SQUARED';
+EXACT: 'EXACT';
 FIRST: 'FIRST';
 GRAPH: 'GRAPH';
 GROUPS: 'GROUPS';
+HAMMING: 'HAMMING';
+INDEX: 'INDEX';
 KEEP: 'KEEP';
 LABEL: 'LABEL';
 LABELED: 'LABELED';
 LABELS: 'LABELS';
 LAST: 'LAST';
+MANHATTAN: 'MANHATTAN';
+NEGATIVE: 'NEGATIVE';
 NFC: 'NFC';
 NFD: 'NFD';
 NFKC: 'NFKC';
@@ -3562,12 +3895,16 @@ NO: 'NO';
 NODE: 'NODE';
 NORMALIZED: 'NORMALIZED';
 ONLY: 'ONLY';
+ORDINAL: 'ORDINAL';
 ORDINALITY: 'ORDINALITY';
+OUT: 'OUT';
 PROPERTY: 'PROPERTY';
+RANGE: 'RANGE';
 READ: 'READ';
 RELATIONSHIP: 'RELATIONSHIP';
 RELATIONSHIPS: 'RELATIONSHIPS';
 REPEATABLE: 'REPEATABLE';
+RETURNING: 'RETURNING';
 SHORTEST: 'SHORTEST';
 SIMPLE: 'SIMPLE';
 SOURCE: 'SOURCE';
@@ -3575,7 +3912,6 @@ TABLE: 'TABLE';
 TO: 'TO';
 TRAIL: 'TRAIL';
 TRANSACTION: 'TRANSACTION';
-TYPE: 'TYPE';
 UNDIRECTED: 'UNDIRECTED';
 VERTEX: 'VERTEX';
 WALK: 'WALK';
