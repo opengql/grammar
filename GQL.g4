@@ -153,10 +153,6 @@ procedureSpecification
 //    : procedureBody
 //    ;
 
-nestedDataModifyingProcedureSpecification
-    : LEFT_BRACE procedureBody RIGHT_BRACE
-    ;
-
 //dataModifyingProcedureSpecification
 //    : procedureBody
 //    ;
@@ -190,9 +186,61 @@ statementBlock
     ;
 
 statement
-    : compositeQueryStatement
-    | linearCatalogModifyingStatement
-    | linearDataModifyingStatement
+    // <composite query statement>
+    : compositeStatement
+    ;
+
+// Compositing only applies to <composite query statements> but to avoid ambiguities with nested procedure specifications,
+// which can occur in <linear catalog-modifying statement> and <composite query statement> the compositing had to be
+// moved up the parse tree. Post parsing phases will need to validate that compositing only occurs in query statements.
+compositeStatement
+    : compositeExpression
+    ;
+
+compositeExpression
+    : compositeExpression queryConjunction linearStatement
+    | linearStatement
+    ;
+
+linearStatement
+    // The following apply to <composite query statement>
+    : (useGraphClause (simpleQueryStatement | callProcedureStatement)+)+ primitiveResultStatement
+    | useGraphClause primitiveResultStatement
+    | selectStatement
+    | (simpleQueryStatement | callProcedureStatement)* primitiveResultStatement
+
+    // The following apply to <linear catalog-modifying statement> and <linear data-modifying statement>
+    // statements, but Catalog-modifying statements cannot have <use graph clause> or <primitive result statement>
+    // but that has to be enforced in a post parse phase to avoid ambiguities with <procedure call statement>.
+    | useGraphClause? simpleStatement+ primitiveResultStatement?
+
+    // The following apply to <linear data-modifying statement> and <composite query statement>. The
+    // procedure type must be validated post parsing.
+    | useGraphClause? LEFT_BRACE procedureBody RIGHT_BRACE
+   ;
+
+// The type of callProcedureStatement must be enforced in a post parse phase.
+simpleStatement
+    : simpleCatalogModifyingStatement
+    | simpleDataModifyingStatement
+    | simpleQueryStatement
+    | callProcedureStatement
+    ;
+
+simpleCatalogModifyingStatement
+    : createSchemaStatement
+    | dropSchemaStatement
+    | dropGraphStatement
+    | createGraphTypeStatement
+    | createGraphStatement
+    | dropGraphTypeStatement
+    ;
+
+simpleDataModifyingStatement
+    : insertStatement
+    | setStatement
+    | removeStatement
+    | deleteStatement
     ;
 
 nextStatement
@@ -278,24 +326,6 @@ objectExpressionPrimary
 
 // 12.1 <linear catalog-modifying statement>
 
-linearCatalogModifyingStatement
-    : simpleCatalogModifyingStatement+
-    ;
-
-simpleCatalogModifyingStatement
-    : primitiveCatalogModifyingStatement
-    | callCatalogModifyingProcedureStatement
-    ;
-
-primitiveCatalogModifyingStatement
-    : createSchemaStatement
-    | dropSchemaStatement
-    | createGraphStatement
-    | dropGraphStatement
-    | createGraphTypeStatement
-    | dropGraphTypeStatement
-    ;
-
 // 12.2 <insert schema statement>
 
 createSchemaStatement
@@ -362,59 +392,7 @@ dropGraphTypeStatement
 
 // 12.8 <call catalog-modifying statement>
 
-callCatalogModifyingProcedureStatement
-    : callProcedureStatement
-    ;
-
 // 13.1 <linear data-modifying statement>
-
-linearDataModifyingStatement
-    : focusedLinearDataModifyingStatement
-    | ambientLinearDataModifyingStatement
-    ;
-
-focusedLinearDataModifyingStatement
-    : focusedLinearDataModifyingStatementBody
-    | focusedNestedDataModifyingProcedureSpecification
-    ;
-
-focusedLinearDataModifyingStatementBody
-    : useGraphClause simpleLinearDataAccessingStatement primitiveResultStatement?
-    ;
-
-focusedNestedDataModifyingProcedureSpecification
-    : useGraphClause nestedDataModifyingProcedureSpecification
-    ;
-
-ambientLinearDataModifyingStatement
-    : ambientLinearDataModifyingStatementBody
-    | nestedDataModifyingProcedureSpecification
-    ;
-
-ambientLinearDataModifyingStatementBody
-    : simpleLinearDataAccessingStatement primitiveResultStatement?
-    ;
-
-simpleLinearDataAccessingStatement
-    : simpleDataAccessingStatement+
-    ;
-
-simpleDataAccessingStatement
-    : simpleQueryStatement
-    | simpleDataModifyingStatement
-    ;
-
-simpleDataModifyingStatement
-    : primitiveDataModifyingStatement
-    | callDataModifyingProcedureStatement
-    ;
-
-primitiveDataModifyingStatement
-    : insertStatement
-    | setStatement
-    | removeStatement
-    | deleteStatement
-    ;
 
 // 13.2 <insertStatement>
 
@@ -489,22 +467,9 @@ deleteItem
 
 // 13.6 <call data-modifying procedure statement>
 
-callDataModifyingProcedureStatement
-    : callProcedureStatement
-    ;
-
 // 14.1 <composite query statement>
 
-compositeQueryStatement
-    : compositeQueryExpression
-    ;
-
 // 14.2 <composite query expression>
-
-compositeQueryExpression
-    : compositeQueryExpression queryConjunction compositeQueryPrimary
-    | compositeQueryPrimary
-    ;
 
 queryConjunction
     : setOperator
@@ -517,55 +482,9 @@ setOperator
     | INTERSECT setQuantifier?
     ;
 
-compositeQueryPrimary
-    : linearQueryStatement
-    ;
-
 // 14.3 <linear query statement> and <simple query statement>
 
-linearQueryStatement
-    : focusedLinearQueryStatement
-    | ambientLinearQueryStatement
-    ;
-
-focusedLinearQueryStatement
-    : focusedLinearQueryStatementPart* focusedLinearQueryAndPrimitiveResultStatementPart
-    | focusedPrimitiveResultStatement
-    | focusedNestedQuerySpecification
-    | selectStatement
-    ;
-
-focusedLinearQueryStatementPart
-    : useGraphClause simpleLinearQueryStatement
-    ;
-
-focusedLinearQueryAndPrimitiveResultStatementPart
-    : useGraphClause simpleLinearQueryStatement primitiveResultStatement
-    ;
-
-focusedPrimitiveResultStatement
-    : useGraphClause primitiveResultStatement
-    ;
-
-focusedNestedQuerySpecification
-    : useGraphClause nestedQuerySpecification
-    ;
-
-ambientLinearQueryStatement
-    : simpleLinearQueryStatement? primitiveResultStatement
-    | nestedQuerySpecification
-    ;
-
-simpleLinearQueryStatement
-    : simpleQueryStatement+
-    ;
-
 simpleQueryStatement
-    : primitiveQueryStatement
-    | callQueryStatement
-    ;
-
-primitiveQueryStatement
     : matchStatement
     | letStatement
     | forStatement
@@ -599,10 +518,6 @@ matchStatementBlock
     ;
 
 // 14.5 <call query statement>
-
-callQueryStatement
-    : callProcedureStatement
-    ;
 
 // 14.6 <filter statement>
 
